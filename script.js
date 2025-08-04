@@ -210,7 +210,7 @@ class FlashcardApp {
             tags: tags,
             completed: false,
             favorite: false, // お気に入りフラグを追加
-            createdAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(), // 時分秒を含むISO文字列
             // 忘却曲線関連データ
             reviewCount: 0,
             nextReviewDate: null,
@@ -262,8 +262,8 @@ class FlashcardApp {
             card.completed = !card.completed;
             
             if (card.completed) {
-                card.completedAt = new Date().toISOString();
-                card.lastCompletedAt = new Date().toISOString();
+                card.completedAt = new Date().toISOString(); // 時分秒を含むISO文字列
+                card.lastCompletedAt = new Date().toISOString(); // 時分秒を含むISO文字列
                 
                 // 忘却曲線が有効な場合、次の復習日を設定
                 if (this.forgettingSettings.enabled) {
@@ -389,7 +389,7 @@ class FlashcardApp {
             card.question = newQuestion;
             card.answer = newAnswer;
             card.tags = newTags;
-            card.updatedAt = new Date().toISOString();
+            card.updatedAt = new Date().toISOString(); // 時分秒を含むISO文字列
             this.editingId = null;
             this.saveCards();
             this.updateAllTags();

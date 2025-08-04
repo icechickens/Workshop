@@ -84,15 +84,19 @@
 ```javascript
 {
   id: Number,              // 一意のID
+  displayId: Number,       // 表示用ID（連番）
   question: String,        // 質問文（最大50文字）
   answer: String,          // 答え（最大200文字）
+  tags: Array,             // タグの配列
   completed: Boolean,      // 習得状態
-  createdAt: String,       // 作成日時（ISO形式）
-  updatedAt: String,       // 更新日時（ISO形式）
-  completedAt: String,     // 習得日時（ISO形式）
+  favorite: Boolean,       // お気に入り状態
+  createdAt: String,       // 作成日時（ISO形式、時分秒を含む）
+  updatedAt: String,       // 更新日時（ISO形式、時分秒を含む）
+  completedAt: String,     // 習得日時（ISO形式、時分秒を含む）
   reviewCount: Number,     // 復習回数
   nextReviewDate: String,  // 次回復習日（ISO形式）
-  lastCompletedAt: String  // 最終習得日時（ISO形式）
+  lastCompletedAt: String, // 最終習得日時（ISO形式、時分秒を含む）
+  relatedCards: Array      // 関連カードIDの配列
 }
 ```
 
@@ -201,7 +205,11 @@ todo-app/
 
 ## 📝 更新履歴
 
-### v1.2.0 (最新)
+### v1.3.0 (最新)
+- ✅ 登録日時と更新日時に時分秒の情報を追加し、より正確なソートを実現
+- ✅ 表示は従来通り日付のみで、時分秒情報は非表示
+
+### v1.2.0
 - ✅ カード一覧のソート機能を追加（登録日時順/更新日時順）
 - ✅ ソート方向の切り替え機能（昇順/降順）を実装
 - ✅ ソート状態の視覚的表示を追加
