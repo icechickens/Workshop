@@ -5,6 +5,149 @@
     box-sizing: border-box;
 }
 
+/* タグ関連のスタイル */
+.tags-input-container {
+    margin-top: 0.75rem;
+    position: relative;
+}
+
+#cardTags {
+    padding: 0.75rem 1.25rem;
+    border: 2px solid transparent;
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+    color: var(--text-primary);
+    width: 100%;
+}
+
+#cardTags:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+#cardTags::placeholder {
+    color: var(--text-muted);
+}
+
+.tags-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    padding-left: 0.5rem;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.card-tag {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1976d2;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-xl);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.3s var(--transition-bounce);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+}
+
+.card-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+}
+
+.card-tag.active {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    box-shadow: 0 3px 10px rgba(79, 172, 254, 0.4);
+}
+
+/* タグフィルターモーダル */
+.tags-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+}
+
+.tag-filter-item {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #1976d2;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-xl);
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s var(--transition-bounce);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+}
+
+.tag-filter-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.tag-filter-item.selected {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    box-shadow: 0 3px 10px rgba(79, 172, 254, 0.4);
+}
+
+.tag-filter-item .tag-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: inherit;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.75rem;
+}
+
+.no-tags-message {
+    width: 100%;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.active-tag-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: var(--radius-lg);
+    border-left: 3px solid #667eea;
+}
+
+.active-tag-filters-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
 :root {
     --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -937,6 +1080,24 @@ header h1::before {
     border-radius: var(--radius-lg);
     border: 2px solid var(--border-color);
     box-shadow: var(--shadow-sm);
+}
+
+.edit-tags-input {
+    padding: 0.75rem 1.25rem;
+    border: 2px solid #667eea;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-family: inherit;
+    outline: none;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+}
+
+.edit-tags-input:focus {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), var(--shadow-md);
+    transform: translateY(-1px);
 }
 
 .edit-question-input {

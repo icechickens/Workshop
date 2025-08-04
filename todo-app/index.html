@@ -16,6 +16,10 @@
             <div class="input-group">
                 <input type="text" id="cardQuestion" placeholder="質問・問題を入力..." maxlength="50" required>
                 <textarea id="cardAnswer" placeholder="答え・解説を入力..." maxlength="200" rows="2"></textarea>
+                <div class="tags-input-container">
+                    <input type="text" id="cardTags" placeholder="タグを入力（カンマ区切り）..." maxlength="100">
+                    <div class="tags-hint">例: 英語,文法,動詞</div>
+                </div>
             </div>
             <button id="addBtn" onclick="addCard()">カード追加</button>
         </div>
@@ -32,11 +36,32 @@
             </div>
         </div>
         
+        <!-- タグフィルターモーダル -->
+        <div id="tagsFilterModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🏷️ タグでフィルター</h2>
+                    <span class="close" onclick="closeTagsFilter()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="tags-filter-container" id="tagsFilterContainer">
+                        <!-- タグリストがここに動的に追加されます -->
+                        <div class="no-tags-message">タグがありません。カードにタグを追加してください。</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="clearTagsFilter()">クリア</button>
+                    <button class="btn-primary" onclick="applyTagsFilter()">適用</button>
+                </div>
+            </div>
+        </div>
+        
         <div class="filter-buttons">
             <button class="filter-btn active" onclick="filterCards('all')">すべて</button>
             <button class="filter-btn" onclick="filterCards('active')">学習中</button>
             <button class="filter-btn" onclick="filterCards('completed')">習得済み</button>
             <button class="filter-btn" id="favoritesFilterBtn" onclick="filterFavorites()">★ お気に入り</button>
+            <button class="filter-btn" id="tagsFilterBtn" onclick="openTagsFilter()">🏷️ タグ</button>
         </div>
         
         <div class="card-stats">

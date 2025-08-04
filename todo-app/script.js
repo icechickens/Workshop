@@ -5,6 +5,8 @@ class FlashcardApp {
         this.currentFilter = 'all';
         this.editingId = null;
         this.searchQuery = '';
+        this.selectedTags = [];
+        this.allTags = this.getAllTags();
         
         // 忘却曲線設定のデフォルト値
         this.forgettingSettings = JSON.parse(localStorage.getItem('forgettingSettings')) || {
@@ -131,8 +133,10 @@ class FlashcardApp {
     addCard() {
         const questionInput = document.getElementById('cardQuestion');
         const answerInput = document.getElementById('cardAnswer');
+        const tagsInput = document.getElementById('cardTags');
         const question = questionInput.value.trim();
         const answer = answerInput.value.trim();
+        const tagsText = tagsInput.value.trim();
         
         if (question === '') {
             this.showNotification('質問を入力してください', 'error');
@@ -150,10 +154,14 @@ class FlashcardApp {
             return;
         }
         
+        // タグを処理
+        const tags = tagsText ? this.processTags(tagsText) : [];
+        
         const card = {
             id: Date.now(),
             question: question,
             answer: answer,
+            tags: tags,
             completed: false,
             favorite: false, // お気に入りフラグを追加
             createdAt: new Date().toISOString(),
@@ -165,13 +173,16 @@ class FlashcardApp {
         
         this.cards.unshift(card);
         this.saveCards();
+        this.updateAllTags();
         this.render();
         this.updateStats();
         
         questionInput.value = '';
         answerInput.value = '';
+        tagsInput.value = '';
         questionInput.style.borderColor = '#e0e0e0';
         answerInput.style.borderColor = '#e0e0e0';
+        tagsInput.style.borderColor = '#e0e0e0';
         questionInput.focus();
         this.showNotification('カードを追加しました', 'success');
     }
@@ -261,12 +272,50 @@ class FlashcardApp {
         }
     }
     
+    // タグを処理する（カンマ区切りのタグを配列に変換）
+    processTags(tagsText) {
+        return tagsText.split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag !== '')
+            .map(tag => tag.toLowerCase());
+    }
+    
+    // すべてのタグを取得
+    getAllTags() {
+        const tagsSet = new Set();
+        this.cards.forEach(card => {
+            if (card.tags && Array.isArray(card.tags)) {
+                card.tags.forEach(tag => tagsSet.add(tag));
+            }
+        });
+        return Array.from(tagsSet).sort();
+    }
+    
+    // タグリストを更新
+    updateAllTags() {
+        this.allTags = this.getAllTags();
+    }
+    
+    // タグでフィルタリング
+    filterByTags(cards) {
+        if (!this.selectedTags.length) return cards;
+        
+        return cards.filter(card => {
+            if (!card.tags || !Array.isArray(card.tags)) return false;
+            
+            // すべての選択されたタグを含むカードのみを返す
+            return this.selectedTags.every(tag => card.tags.includes(tag));
+        });
+    }
+    
     // カードの編集を保存
     saveCard(id) {
         const editQuestionInput = document.querySelector('.edit-question-input');
         const editAnswerInput = document.querySelector('.edit-answer-input');
+        const editTagsInput = document.querySelector('.edit-tags-input');
         const newQuestion = editQuestionInput.value.trim();
         const newAnswer = editAnswerInput.value.trim();
+        const newTagsText = editTagsInput.value.trim();
         
         if (newQuestion === '') {
             this.showNotification('質問を入力してください', 'error');
@@ -284,13 +333,18 @@ class FlashcardApp {
             return;
         }
         
+        // タグを処理
+        const newTags = newTagsText ? this.processTags(newTagsText) : [];
+        
         const card = this.cards.find(card => card.id === id);
         if (card) {
             card.question = newQuestion;
             card.answer = newAnswer;
+            card.tags = newTags;
             card.updatedAt = new Date().toISOString();
             this.editingId = null;
             this.saveCards();
+            this.updateAllTags();
             this.render();
             this.showNotification('カードを更新しました', 'success');
         }
@@ -381,6 +435,9 @@ class FlashcardApp {
             filteredCards = this.getSearchResults(this.searchQuery);
         }
         
+        // タグフィルター
+        filteredCards = this.filterByTags(filteredCards);
+        
         // 状態フィルター
         switch (this.currentFilter) {
             case 'active':
@@ -451,6 +508,9 @@ class FlashcardApp {
         const highlightedAnswer = this.searchQuery ? 
             this.highlightText(card.answer || '', this.searchQuery) : 
             this.escapeHtml(card.answer || '');
+            
+        // タグを表示
+        const tagsHtml = this.renderCardTags(card);
         
         // フラッシュカードモードの場合
         if (this.flashcardSettings.enabled) {
@@ -472,6 +532,7 @@ class FlashcardApp {
                                 答えがありません
                             </div>
                         `}
+                        ${tagsHtml}
                         <div class="card-meta">${metaInfo}</div>
                     </div>
                     <div class="card-actions">
@@ -496,6 +557,7 @@ class FlashcardApp {
                 <div class="card-content">
                     <div class="card-question">${highlightedQuestion}</div>
                     ${hasAnswer ? `<div class="card-answer always-visible">${highlightedAnswer}</div>` : ''}
+                    ${tagsHtml}
                     <div class="card-meta">${metaInfo}</div>
                 </div>
                 <div class="card-actions">
@@ -515,6 +577,7 @@ class FlashcardApp {
     // 編集中のカードアイテムをレンダリング
     renderEditingCard(card) {
         const isFavorite = card.favorite || false;
+        const tagsValue = card.tags && Array.isArray(card.tags) ? card.tags.join(', ') : '';
         
         return `
             <li class="card-item ${isFavorite ? 'favorite' : ''}" data-id="${card.id}">
@@ -526,6 +589,9 @@ class FlashcardApp {
                            onkeypress="if(event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">
                     <textarea class="edit-answer-input" maxlength="200" placeholder="答え（任意）" 
                               onkeydown="if(event.ctrlKey && event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">${this.escapeHtml(card.answer || '')}</textarea>
+                    <input type="text" class="edit-tags-input" value="${this.escapeHtml(tagsValue)}" 
+                           maxlength="100" placeholder="タグ（カンマ区切り）" 
+                           onkeypress="if(event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">
                 </div>
                 <div class="card-actions">
                     <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
@@ -612,6 +678,11 @@ class FlashcardApp {
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         const searchResults = document.getElementById('searchResults');
         
+        if (!searchInput || !searchInfo || !clearSearchBtn || !searchResults) {
+            console.error('検索関連の要素が見つかりません');
+            return;
+        }
+        
         if (query === null) {
             query = searchInput.value.trim();
         }
@@ -662,8 +733,51 @@ class FlashcardApp {
         return this.cards.filter(card => {
             const questionMatch = card.question.toLowerCase().includes(searchTerm);
             const answerMatch = card.answer && card.answer.toLowerCase().includes(searchTerm);
-            return questionMatch || answerMatch;
+            
+            // タグも検索対象に含める
+            const tagMatch = card.tags && Array.isArray(card.tags) && 
+                card.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+            return questionMatch || answerMatch || tagMatch;
         });
+    }
+    
+    // カードのタグをレンダリング
+    renderCardTags(card) {
+        if (!card.tags || !Array.isArray(card.tags) || card.tags.length === 0) {
+            return '';
+        }
+        
+        const tagsHtml = card.tags.map(tag => {
+            const isActive = this.selectedTags.includes(tag);
+            return `
+                <span class="card-tag ${isActive ? 'active' : ''}" 
+                      onclick="event.stopPropagation(); flashcardApp.toggleTagFilter('${tag}')">
+                    🏷️ ${this.escapeHtml(tag)}
+                </span>
+            `;
+        }).join('');
+        
+        return `<div class="card-tags">${tagsHtml}</div>`;
+    }
+    
+    // タグフィルターを切り替え
+    toggleTagFilter(tag) {
+        if (!tag) return;
+        
+        const index = this.selectedTags.indexOf(tag);
+        if (index === -1) {
+            this.selectedTags.push(tag);
+        } else {
+            this.selectedTags.splice(index, 1);
+        }
+        this.render();
+        
+        if (this.selectedTags.length > 0) {
+            this.showNotification(`タグ「${this.selectedTags.join('、')}」でフィルター中`, 'info');
+        } else {
+            this.showNotification('タグフィルターをクリアしました', 'info');
+        }
     }
     
     // テキストをハイライト
@@ -961,6 +1075,112 @@ function resetSettings() {
     }
 }
 
+// タグフィルターモーダル関連の関数
+function openTagsFilter() {
+    const modal = document.getElementById('tagsFilterModal');
+    if (modal) {
+        modal.classList.add('show');
+        renderTagsFilter();
+    } else {
+        console.error('タグフィルターモーダルが見つかりません');
+    }
+}
+
+function closeTagsFilter() {
+    const modal = document.getElementById('tagsFilterModal');
+    modal.classList.remove('show');
+}
+
+function renderTagsFilter() {
+    const container = document.getElementById('tagsFilterContainer');
+    if (!container || !flashcardApp) return;
+    
+    const allTags = flashcardApp.allTags;
+    
+    if (!allTags || allTags.length === 0) {
+        container.innerHTML = '<div class="no-tags-message">タグがありません。カードにタグを追加してください。</div>';
+        return;
+    }
+    
+    // タグごとのカード数をカウント
+    const tagCounts = {};
+    flashcardApp.cards.forEach(card => {
+        if (card.tags && Array.isArray(card.tags)) {
+            card.tags.forEach(tag => {
+                tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+            });
+        }
+    });
+    
+    // タグフィルターアイテムを生成
+    const tagsHtml = allTags.map(tag => {
+        const isSelected = flashcardApp.selectedTags.includes(tag);
+        const count = tagCounts[tag] || 0;
+        
+        return `
+            <div class="tag-filter-item ${isSelected ? 'selected' : ''}" 
+                 onclick="toggleTagSelection('${tag}')">
+                ${tag}
+                <span class="tag-count">${count}</span>
+            </div>
+        `;
+    }).join('');
+    
+    // 選択中のタグ表示
+    let selectedTagsHtml = '';
+    if (flashcardApp.selectedTags.length > 0) {
+        selectedTagsHtml = `
+            <div class="active-tag-filters">
+                <span class="active-tag-filters-label">選択中のタグ:</span>
+                ${flashcardApp.selectedTags.map(tag => `
+                    <div class="tag-filter-item selected">
+                        ${tag}
+                        <span onclick="removeTagSelection('${tag}')" style="margin-left: 5px; cursor: pointer;">✕</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    container.innerHTML = tagsHtml + selectedTagsHtml;
+}
+
+function toggleTagSelection(tag) {
+    if (!flashcardApp) return;
+    
+    const index = flashcardApp.selectedTags.indexOf(tag);
+    if (index === -1) {
+        flashcardApp.selectedTags.push(tag);
+    } else {
+        flashcardApp.selectedTags.splice(index, 1);
+    }
+    renderTagsFilter();
+}
+
+function removeTagSelection(tag) {
+    const index = flashcardApp.selectedTags.indexOf(tag);
+    if (index !== -1) {
+        flashcardApp.selectedTags.splice(index, 1);
+    }
+    renderTagsFilter();
+}
+
+function applyTagsFilter() {
+    flashcardApp.render();
+    closeTagsFilter();
+    
+    if (flashcardApp.selectedTags.length > 0) {
+        flashcardApp.showNotification(`タグ「${flashcardApp.selectedTags.join('、')}」でフィルター中`, 'info');
+    }
+}
+
+function clearTagsFilter() {
+    flashcardApp.selectedTags = [];
+    renderTagsFilter();
+    flashcardApp.render();
+    flashcardApp.showNotification('タグフィルターをクリアしました', 'info');
+}
+
 // キーボードショートカット
 document.addEventListener('keydown', (e) => {
     // Ctrl+Enter で新しいカードを追加
@@ -985,9 +1205,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // モーダル外クリックで閉じる
     window.addEventListener('click', (e) => {
-        const modal = document.getElementById('settingsModal');
-        if (e.target === modal) {
+        const settingsModal = document.getElementById('settingsModal');
+        if (e.target === settingsModal) {
             closeSettings();
+        }
+        
+        const tagsFilterModal = document.getElementById('tagsFilterModal');
+        if (e.target === tagsFilterModal) {
+            closeTagsFilter();
         }
     });
 });
