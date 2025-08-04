@@ -35,9 +35,9 @@ class FlashcardApp {
             notifications: true
         };
         
-        // フラッシュカード設定のデフォルト値
-        this.flashcardSettings = JSON.parse(localStorage.getItem('flashcardSettings')) || {
-            enabled: true // デフォルトでフラッシュカードモードを有効
+        // フラッシュカードモードは常に有効（設定から変更不可）
+        this.flashcardSettings = {
+            enabled: true // 常に有効
         };
         
         // ダークモード設定のデフォルト値
@@ -56,6 +56,14 @@ class FlashcardApp {
         this.loadSettings();
         this.applyTheme(); // テーマを適用
         this.checkForgettingCurve();
+        
+        // デフォルトで全てのカードを展開状態にする
+        this.cards.forEach(card => {
+            if (card.answer && card.answer.trim() !== '') {
+                this.expandedCards.add(card.id);
+            }
+        });
+        
         this.render();
         this.updateStats();
         this.updateForgettingStatus();
@@ -1104,12 +1112,10 @@ class FlashcardApp {
     // 設定を読み込み
     loadSettings() {
         const forgettingSettings = this.forgettingSettings;
-        const flashcardSettings = this.flashcardSettings;
         const darkModeSettings = this.darkModeSettings;
         
         document.getElementById('enableForgetting').checked = forgettingSettings.enabled;
         document.getElementById('enableNotifications').checked = forgettingSettings.notifications;
-        document.getElementById('enableFlashcard').checked = flashcardSettings.enabled;
         document.getElementById('enableDarkMode').checked = darkModeSettings.enabled;
         
         // 復習回数の設定を読み込み
@@ -1186,10 +1192,7 @@ class FlashcardApp {
         }
     }
     
-    // フラッシュカード設定を保存
-    saveFlashcardSettings() {
-        localStorage.setItem('flashcardSettings', JSON.stringify(this.flashcardSettings));
-    }
+    // フラッシュカードモードは常に有効なので設定保存は不要
     
     // 忘却曲線設定を保存
     saveForgettingSettings() {
@@ -1337,12 +1340,7 @@ function updateIntervalInputs() {
     flashcardApp.generateIntervalInputs();
 }
 
-function toggleFlashcardMode() {
-    // フラッシュカードモードの切り替え時に展開状態をリセット
-    flashcardApp.expandedCards.clear();
-    flashcardApp.render();
-    flashcardApp.updateBulkControl();
-}
+// フラッシュカードモードは常に有効なので切り替え関数は不要
 
 function toggleDarkMode() {
     flashcardApp.toggleDarkMode();
@@ -1355,7 +1353,7 @@ function saveSettings() {
     
     forgettingSettings.enabled = document.getElementById('enableForgetting').checked;
     forgettingSettings.notifications = document.getElementById('enableNotifications').checked;
-    flashcardSettings.enabled = document.getElementById('enableFlashcard').checked;
+    // フラッシュカードモードは常に有効
     darkModeSettings.enabled = document.getElementById('enableDarkMode').checked;
     
     // 復習回数を保存
@@ -1373,7 +1371,7 @@ function saveSettings() {
     forgettingSettings.intervals = intervals;
     
     flashcardApp.saveForgettingSettings();
-    flashcardApp.saveFlashcardSettings();
+    // フラッシュカードモードは常に有効なので設定保存は不要
     flashcardApp.saveDarkModeSettings();
     flashcardApp.applyTheme(); // テーマを適用
     flashcardApp.updateForgettingStatus();
@@ -1390,9 +1388,7 @@ function resetSettings() {
             intervals: [1, 3, 7, 14, 30],
             notifications: true
         };
-        flashcardApp.flashcardSettings = {
-            enabled: true
-        };
+        // フラッシュカードモードは常に有効
         flashcardApp.darkModeSettings = {
             enabled: false
         };
