@@ -4,6 +4,7 @@ class FlashcardApp {
         this.cards = JSON.parse(localStorage.getItem('flashcards')) || [];
         this.currentFilter = 'all';
         this.editingId = null;
+        this.searchQuery = '';
         
         // 忘却曲線設定のデフォルト値
         this.forgettingSettings = JSON.parse(localStorage.getItem('forgettingSettings')) || {
@@ -86,6 +87,23 @@ class FlashcardApp {
                     }
                     clickCount = 0;
                 }
+            }
+        });
+        
+        // 検索機能のイベントリスナー
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length === 0) {
+                this.clearSearch();
+            } else {
+                this.performSearch(query);
+            }
+        });
+        
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = e.target.value.trim();
+                this.performSearch(query);
             }
         });
         
@@ -319,13 +337,21 @@ class FlashcardApp {
     
     // フィルターされたカードを取得
     getFilteredCards() {
+        let filteredCards = this.cards;
+        
+        // 検索フィルター
+        if (this.searchQuery) {
+            filteredCards = this.getSearchResults(this.searchQuery);
+        }
+        
+        // 状態フィルター
         switch (this.currentFilter) {
             case 'active':
-                return this.cards.filter(card => !card.completed);
+                return filteredCards.filter(card => !card.completed);
             case 'completed':
-                return this.cards.filter(card => card.completed);
+                return filteredCards.filter(card => card.completed);
             default:
-                return this.cards;
+                return filteredCards;
         }
     }
     
@@ -378,6 +404,14 @@ class FlashcardApp {
         const isExpanded = this.expandedCards.has(card.id);
         const hasAnswer = card.answer && card.answer.trim() !== '';
         
+        // 検索ハイライト対応
+        const highlightedQuestion = this.searchQuery ? 
+            this.highlightText(card.question, this.searchQuery) : 
+            this.escapeHtml(card.question);
+        const highlightedAnswer = this.searchQuery ? 
+            this.highlightText(card.answer || '', this.searchQuery) : 
+            this.escapeHtml(card.answer || '');
+        
         // フラッシュカードモードの場合
         if (this.flashcardSettings.enabled) {
             return `
@@ -386,12 +420,12 @@ class FlashcardApp {
                          onclick="flashcardApp.toggleCard(${card.id})"></div>
                     <div class="card-content">
                         <div class="card-question">
-                            ${this.escapeHtml(card.question)}
+                            ${highlightedQuestion}
                             ${hasAnswer ? `<span class="card-indicator ${isExpanded ? 'expanded' : ''}">▶</span>` : ''}
                         </div>
                         ${hasAnswer ? `
                             <div class="card-answer ${isExpanded ? 'expanded' : ''}">
-                                ${this.escapeHtml(card.answer)}
+                                ${highlightedAnswer}
                             </div>
                         ` : `
                             <div class="card-answer no-answer ${isExpanded ? 'expanded' : ''}">
@@ -415,8 +449,8 @@ class FlashcardApp {
                 <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
                      onclick="flashcardApp.toggleCard(${card.id})"></div>
                 <div class="card-content">
-                    <div class="card-question">${this.escapeHtml(card.question)}</div>
-                    ${hasAnswer ? `<div class="card-answer always-visible">${this.escapeHtml(card.answer)}</div>` : ''}
+                    <div class="card-question">${highlightedQuestion}</div>
+                    ${hasAnswer ? `<div class="card-answer always-visible">${highlightedAnswer}</div>` : ''}
                     <div class="card-meta">${metaInfo}</div>
                 </div>
                 <div class="card-actions">
@@ -512,6 +546,78 @@ class FlashcardApp {
         this.render();
         this.updateBulkControl();
         this.showNotification('すべてのカードを閉じました', 'success');
+    }
+    
+    // 検索を実行
+    performSearch(query = null) {
+        const searchInput = document.getElementById('searchInput');
+        const searchInfo = document.getElementById('searchInfo');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const searchResults = document.getElementById('searchResults');
+        
+        if (query === null) {
+            query = searchInput.value.trim();
+        }
+        
+        this.searchQuery = query;
+        
+        if (query === '') {
+            this.clearSearch();
+            return;
+        }
+        
+        // 検索結果を取得
+        const results = this.getSearchResults(query);
+        
+        // UI更新
+        searchInfo.style.display = 'block';
+        clearSearchBtn.style.display = 'block';
+        searchResults.textContent = `"${query}" で ${results.length}件見つかりました`;
+        
+        // カードリストを再レンダリング
+        this.render();
+        
+        this.showNotification(`${results.length}件のカードが見つかりました`, 'info');
+    }
+    
+    // 検索をクリア
+    clearSearch() {
+        const searchInput = document.getElementById('searchInput');
+        const searchInfo = document.getElementById('searchInfo');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        
+        this.searchQuery = '';
+        searchInput.value = '';
+        searchInfo.style.display = 'none';
+        clearSearchBtn.style.display = 'none';
+        
+        // カードリストを再レンダリング
+        this.render();
+        
+        this.showNotification('検索をクリアしました', 'info');
+    }
+    
+    // 検索結果を取得
+    getSearchResults(query) {
+        if (!query) return this.cards;
+        
+        const searchTerm = query.toLowerCase();
+        return this.cards.filter(card => {
+            const questionMatch = card.question.toLowerCase().includes(searchTerm);
+            const answerMatch = card.answer && card.answer.toLowerCase().includes(searchTerm);
+            return questionMatch || answerMatch;
+        });
+    }
+    
+    // テキストをハイライト
+    highlightText(text, query) {
+        if (!query || !text) return this.escapeHtml(text);
+        
+        const escapedText = this.escapeHtml(text);
+        const escapedQuery = this.escapeHtml(query);
+        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+        
+        return escapedText.replace(regex, '<span class="search-highlight">$1</span>');
     }
     
     // HTMLエスケープ
@@ -719,6 +825,15 @@ function expandAllCards() {
 
 function collapseAllCards() {
     flashcardApp.collapseAllCards();
+}
+
+// 検索関数
+function performSearch() {
+    flashcardApp.performSearch();
+}
+
+function clearSearch() {
+    flashcardApp.clearSearch();
 }
 
 // 設定モーダル関連の関数

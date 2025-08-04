@@ -20,6 +20,18 @@
             <button id="addBtn" onclick="addCard()">カード追加</button>
         </div>
         
+        <!-- 検索機能 -->
+        <div class="search-container">
+            <div class="search-input-group">
+                <input type="text" id="searchInput" placeholder="質問や答えを検索..." maxlength="100">
+                <button id="searchBtn" onclick="performSearch()">🔍</button>
+                <button id="clearSearchBtn" onclick="clearSearch()" style="display: none;">✕</button>
+            </div>
+            <div class="search-info" id="searchInfo" style="display: none;">
+                <span id="searchResults">0件見つかりました</span>
+            </div>
+        </div>
+        
         <div class="filter-buttons">
             <button class="filter-btn active" onclick="filterCards('all')">すべて</button>
             <button class="filter-btn" onclick="filterCards('active')">学習中</button>
