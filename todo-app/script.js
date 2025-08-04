@@ -155,6 +155,7 @@ class FlashcardApp {
             question: question,
             answer: answer,
             completed: false,
+            favorite: false, // お気に入りフラグを追加
             createdAt: new Date().toISOString(),
             // 忘却曲線関連データ
             reviewCount: 0,
@@ -221,6 +222,24 @@ class FlashcardApp {
             this.updateForgettingStatus();
             
             const message = card.completed ? 'カードを習得済みにしました' : 'カードを学習中に戻しました';
+            this.showNotification(message, 'success');
+        }
+    }
+    
+    // お気に入り状態を切り替え
+    toggleFavorite(id) {
+        const card = this.cards.find(card => card.id === id);
+        if (card) {
+            card.favorite = !card.favorite;
+            this.saveCards();
+            
+            // 該当するカードのみを更新
+            const cardElement = document.querySelector(`[data-id="${id}"]`);
+            if (cardElement) {
+                cardElement.outerHTML = this.renderCard(card);
+            }
+            
+            const message = card.favorite ? 'お気に入りに追加しました' : 'お気に入りから削除しました';
             this.showNotification(message, 'success');
         }
     }
@@ -317,6 +336,24 @@ class FlashcardApp {
         this.render();
     }
     
+    // お気に入りフィルターを適用
+    filterFavorites() {
+        this.currentFilter = this.currentFilter === 'favorites' ? 'all' : 'favorites';
+        
+        // フィルターボタンのアクティブ状態を更新
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        if (this.currentFilter === 'favorites') {
+            document.getElementById('favoritesFilterBtn').classList.add('active');
+        } else {
+            document.querySelector('.filter-btn[onclick="filterCards(\'all\')"]').classList.add('active');
+        }
+        
+        this.render();
+    }
+    
     // 習得済みのカードをすべて削除
     clearCompleted() {
         const completedCount = this.cards.filter(card => card.completed).length;
@@ -350,6 +387,8 @@ class FlashcardApp {
                 return filteredCards.filter(card => !card.completed);
             case 'completed':
                 return filteredCards.filter(card => card.completed);
+            case 'favorites':
+                return filteredCards.filter(card => card.favorite);
             default:
                 return filteredCards;
         }
@@ -403,6 +442,7 @@ class FlashcardApp {
         
         const isExpanded = this.expandedCards.has(card.id);
         const hasAnswer = card.answer && card.answer.trim() !== '';
+        const isFavorite = card.favorite || false;
         
         // 検索ハイライト対応
         const highlightedQuestion = this.searchQuery ? 
@@ -415,7 +455,7 @@ class FlashcardApp {
         // フラッシュカードモードの場合
         if (this.flashcardSettings.enabled) {
             return `
-                <li class="card-item ${card.completed ? 'completed' : ''}" data-id="${card.id}">
+                <li class="card-item ${card.completed ? 'completed' : ''} ${isFavorite ? 'favorite' : ''}" data-id="${card.id}">
                     <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
                          onclick="flashcardApp.toggleCard(${card.id})"></div>
                     <div class="card-content">
@@ -435,6 +475,11 @@ class FlashcardApp {
                         <div class="card-meta">${metaInfo}</div>
                     </div>
                     <div class="card-actions">
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
+                                onclick="event.stopPropagation(); flashcardApp.toggleFavorite(${card.id})" 
+                                title="${isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'}">
+                            ★
+                        </button>
                         <button class="edit-btn" onclick="event.stopPropagation(); flashcardApp.editCard(${card.id})" 
                                 ${card.completed ? 'disabled' : ''}>編集</button>
                         <button class="delete-btn" onclick="event.stopPropagation(); flashcardApp.deleteCard(${card.id})">削除</button>
@@ -445,7 +490,7 @@ class FlashcardApp {
         
         // 通常モードの場合
         return `
-            <li class="card-item ${card.completed ? 'completed' : ''}" data-id="${card.id}">
+            <li class="card-item ${card.completed ? 'completed' : ''} ${isFavorite ? 'favorite' : ''}" data-id="${card.id}">
                 <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
                      onclick="flashcardApp.toggleCard(${card.id})"></div>
                 <div class="card-content">
@@ -454,6 +499,11 @@ class FlashcardApp {
                     <div class="card-meta">${metaInfo}</div>
                 </div>
                 <div class="card-actions">
+                    <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
+                            onclick="flashcardApp.toggleFavorite(${card.id})" 
+                            title="${isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'}">
+                        ★
+                    </button>
                     <button class="edit-btn" onclick="flashcardApp.editCard(${card.id})" 
                             ${card.completed ? 'disabled' : ''}>編集</button>
                     <button class="delete-btn" onclick="flashcardApp.deleteCard(${card.id})">削除</button>
@@ -464,8 +514,10 @@ class FlashcardApp {
     
     // 編集中のカードアイテムをレンダリング
     renderEditingCard(card) {
+        const isFavorite = card.favorite || false;
+        
         return `
-            <li class="card-item" data-id="${card.id}">
+            <li class="card-item ${isFavorite ? 'favorite' : ''}" data-id="${card.id}">
                 <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
                      onclick="flashcardApp.toggleCard(${card.id})"></div>
                 <div class="edit-form">
@@ -476,6 +528,11 @@ class FlashcardApp {
                               onkeydown="if(event.ctrlKey && event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">${this.escapeHtml(card.answer || '')}</textarea>
                 </div>
                 <div class="card-actions">
+                    <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
+                            onclick="flashcardApp.toggleFavorite(${card.id})" 
+                            title="${isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'}">
+                        ★
+                    </button>
                     <button class="save-btn" onclick="flashcardApp.saveCard(${card.id})">保存</button>
                     <button class="cancel-btn" onclick="flashcardApp.cancelEdit()">キャンセル</button>
                 </div>
@@ -812,6 +869,10 @@ function addCard() {
 
 function filterCards(filter) {
     flashcardApp.filterCards(filter);
+}
+
+function filterFavorites() {
+    flashcardApp.filterFavorites();
 }
 
 function clearCompleted() {
