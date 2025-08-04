@@ -1588,6 +1588,35 @@ header h1::before {
     text-align: left;
 }
 
+.review-count-setting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.review-count-setting label {
+    min-width: 120px;
+    font-weight: 500;
+}
+
+.review-count-setting input[type="number"] {
+    width: 80px;
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.review-count-setting input[type="number"]:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
 .interval-settings {
     display: flex;
     flex-direction: column;

@@ -163,8 +163,16 @@
                 </div>
                 
                 <div class="setting-group" id="forgettingSettings">
+                    <h4>復習回数の設定</h4>
+                    <div class="review-count-setting">
+                        <label>復習回数:</label>
+                        <input type="number" id="reviewCount" min="1" max="10" value="5" onchange="updateIntervalInputs()">
+                        <span>回</span>
+                    </div>
+                    
                     <h4>復習間隔の設定</h4>
-                    <div class="interval-settings">
+                    <div class="interval-settings" id="intervalSettingsContainer">
+                        <!-- 復習間隔の入力フィールドがここに動的に生成されます -->
                         <div class="interval-item">
                             <label>1回目の復習:</label>
                             <input type="number" id="interval1" min="1" max="30" value="1">

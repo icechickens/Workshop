@@ -24,6 +24,7 @@ class FlashcardApp {
         // 忘却曲線設定のデフォルト値
         this.forgettingSettings = JSON.parse(localStorage.getItem('forgettingSettings')) || {
             enabled: false,
+            reviewCount: 5, // 復習回数のデフォルト値
             intervals: [1, 3, 7, 14, 30], // 日数
             notifications: true
         };
@@ -889,8 +890,8 @@ class FlashcardApp {
     
     // 次の復習日をスケジュール
     scheduleNextReview(card) {
-        if (card.reviewCount >= this.forgettingSettings.intervals.length) {
-            // 最大復習回数に達した場合は復習を終了
+        if (card.reviewCount >= this.forgettingSettings.reviewCount) {
+            // 設定された復習回数に達した場合は復習を終了
             card.nextReviewDate = null;
             return;
         }
@@ -1005,12 +1006,66 @@ class FlashcardApp {
         document.getElementById('enableNotifications').checked = forgettingSettings.notifications;
         document.getElementById('enableFlashcard').checked = flashcardSettings.enabled;
         
+        // 復習回数の設定を読み込み
+        document.getElementById('reviewCount').value = forgettingSettings.reviewCount;
+        
+        // 復習間隔の入力フィールドを生成
+        this.generateIntervalInputs();
+        
+        // 復習間隔の値を設定
         forgettingSettings.intervals.forEach((interval, index) => {
             const input = document.getElementById(`interval${index + 1}`);
             if (input) input.value = interval;
         });
         
         this.toggleForgettingSettings();
+    }
+    
+    // 復習回数に基づいて間隔入力フィールドを動的に生成
+    generateIntervalInputs() {
+        const container = document.getElementById('intervalSettingsContainer');
+        const reviewCount = parseInt(document.getElementById('reviewCount').value) || this.forgettingSettings.reviewCount;
+        
+        // コンテナをクリア
+        container.innerHTML = '';
+        
+        // 指定された回数分の入力フィールドを生成
+        for (let i = 0; i < reviewCount; i++) {
+            const intervalItem = document.createElement('div');
+            intervalItem.className = 'interval-item';
+            
+            const label = document.createElement('label');
+            label.textContent = `${i + 1}回目の復習:`;
+            
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = `interval${i + 1}`;
+            input.min = '1';
+            
+            // 回数に応じて最大値を調整
+            if (i < 2) input.max = '30'; // 1-2回目は最大30日
+            else if (i < 4) input.max = '60'; // 3-4回目は最大60日
+            else if (i < 6) input.max = '90'; // 5-6回目は最大90日
+            else input.max = '180'; // 7回目以降は最大180日
+            
+            // デフォルト値を設定
+            if (i < this.forgettingSettings.intervals.length) {
+                input.value = this.forgettingSettings.intervals[i];
+            } else {
+                // 既存の間隔がない場合は、前回の間隔の2倍を設定（最低7日）
+                const prevInterval = i > 0 ? parseInt(this.forgettingSettings.intervals[i - 1]) || 7 : 7;
+                input.value = Math.min(parseInt(input.max), Math.max(7, prevInterval * 2));
+            }
+            
+            const span = document.createElement('span');
+            span.textContent = '日後';
+            
+            intervalItem.appendChild(label);
+            intervalItem.appendChild(input);
+            intervalItem.appendChild(span);
+            
+            container.appendChild(intervalItem);
+        }
     }
     
     // 忘却曲線設定の表示/非表示を切り替え
@@ -1159,6 +1214,11 @@ function toggleForgettingCurve() {
     flashcardApp.toggleForgettingSettings();
 }
 
+// 復習回数が変更されたときに間隔入力フィールドを更新
+function updateIntervalInputs() {
+    flashcardApp.generateIntervalInputs();
+}
+
 function toggleFlashcardMode() {
     // フラッシュカードモードの切り替え時に展開状態をリセット
     flashcardApp.expandedCards.clear();
@@ -1174,13 +1234,19 @@ function saveSettings() {
     forgettingSettings.notifications = document.getElementById('enableNotifications').checked;
     flashcardSettings.enabled = document.getElementById('enableFlashcard').checked;
     
+    // 復習回数を保存
+    const reviewCount = parseInt(document.getElementById('reviewCount').value) || 5;
+    forgettingSettings.reviewCount = reviewCount;
+    
     // 間隔設定を保存
-    for (let i = 0; i < 5; i++) {
+    const intervals = [];
+    for (let i = 0; i < reviewCount; i++) {
         const input = document.getElementById(`interval${i + 1}`);
         if (input) {
-            forgettingSettings.intervals[i] = parseInt(input.value) || forgettingSettings.intervals[i];
+            intervals.push(parseInt(input.value) || 1);
         }
     }
+    forgettingSettings.intervals = intervals;
     
     flashcardApp.saveForgettingSettings();
     flashcardApp.saveFlashcardSettings();
@@ -1194,6 +1260,7 @@ function resetSettings() {
     if (confirm('設定をデフォルトに戻しますか？')) {
         flashcardApp.forgettingSettings = {
             enabled: false,
+            reviewCount: 5,
             intervals: [1, 3, 7, 14, 30],
             notifications: true
         };
