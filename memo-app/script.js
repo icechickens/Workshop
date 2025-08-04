@@ -1382,11 +1382,22 @@ function renderRelatedCardsList(searchQuery = '') {
     
     // 検索クエリがある場合はフィルタリング
     if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        availableCards = availableCards.filter(card => 
-            card.question.toLowerCase().includes(query) || 
-            (card.answer && card.answer.toLowerCase().includes(query))
-        );
+        // #で始まる場合はカードIDの完全一致検索
+        if (searchQuery.startsWith('#')) {
+            const idQuery = searchQuery.substring(1); // #を除去
+            if (idQuery) { // #のみの場合は何もしない
+                availableCards = availableCards.filter(card => 
+                    card.displayId && card.displayId.toString() === idQuery
+                );
+            }
+        } else {
+            // 通常の検索（#で始まらない場合）
+            const query = searchQuery.toLowerCase();
+            availableCards = availableCards.filter(card => 
+                card.question.toLowerCase().includes(query) || 
+                (card.answer && card.answer.toLowerCase().includes(query))
+            );
+        }
     }
     
     if (availableCards.length === 0) {
@@ -1397,9 +1408,13 @@ function renderRelatedCardsList(searchQuery = '') {
     // カードリストを生成
     const cardsHtml = availableCards.map(card => {
         const isSelected = selectedRelatedCards.includes(card.id);
+        const displayId = card.displayId || 0; // 既存のカードにdisplayIdがない場合は0を表示
         return `
             <div class="related-card-item ${isSelected ? 'selected' : ''}" data-id="${card.id}">
-                <div class="related-card-question">${flashcardApp.escapeHtml(card.question)}</div>
+                <div class="related-card-question">
+                    <span class="card-id">${displayId}</span>
+                    ${flashcardApp.escapeHtml(card.question)}
+                </div>
                 <button class="related-card-select" onclick="toggleRelatedCard(${card.id})">
                     ${isSelected ? '選択解除' : '選択'}
                 </button>
