@@ -98,6 +98,34 @@
         </div>
     </div>
     
+    <!-- 関連カード選択モーダル -->
+    <div id="relatedCardsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔗 関連カードを選択</h2>
+                <span class="close" onclick="closeRelatedCardsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="related-cards-search">
+                    <input type="text" id="relatedCardsSearch" placeholder="カードを検索..." maxlength="100">
+                </div>
+                <div class="related-cards-container" id="relatedCardsContainer">
+                    <!-- カードリストがここに動的に追加されます -->
+                </div>
+                <div class="selected-related-cards" id="selectedRelatedCards">
+                    <h3>選択中の関連カード</h3>
+                    <div class="selected-cards-list" id="selectedCardsList">
+                        <!-- 選択されたカードがここに表示されます -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="clearRelatedCards()">クリア</button>
+                <button class="btn-primary" onclick="applyRelatedCards()">適用</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 設定モーダル -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">

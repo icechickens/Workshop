@@ -168,7 +168,9 @@ class FlashcardApp {
             // 忘却曲線関連データ
             reviewCount: 0,
             nextReviewDate: null,
-            lastCompletedAt: null
+            lastCompletedAt: null,
+            // 関連カード
+            relatedCards: []
         };
         
         this.cards.unshift(card);
@@ -512,6 +514,9 @@ class FlashcardApp {
         // タグを表示
         const tagsHtml = this.renderCardTags(card);
         
+        // 関連カードを表示
+        const relatedCardsHtml = this.renderRelatedCards(card);
+        
         // フラッシュカードモードの場合
         if (this.flashcardSettings.enabled) {
             return `
@@ -533,6 +538,7 @@ class FlashcardApp {
                             </div>
                         `}
                         ${tagsHtml}
+                        ${relatedCardsHtml}
                         <div class="card-meta">${metaInfo}</div>
                     </div>
                     <div class="card-actions">
@@ -558,6 +564,7 @@ class FlashcardApp {
                     <div class="card-question">${highlightedQuestion}</div>
                     ${hasAnswer ? `<div class="card-answer always-visible">${highlightedAnswer}</div>` : ''}
                     ${tagsHtml}
+                    ${relatedCardsHtml}
                     <div class="card-meta">${metaInfo}</div>
                 </div>
                 <div class="card-actions">
@@ -579,6 +586,9 @@ class FlashcardApp {
         const isFavorite = card.favorite || false;
         const tagsValue = card.tags && Array.isArray(card.tags) ? card.tags.join(', ') : '';
         
+        // 関連カードの数を取得
+        const relatedCardsCount = card.relatedCards && Array.isArray(card.relatedCards) ? card.relatedCards.length : 0;
+        
         return `
             <li class="card-item ${isFavorite ? 'favorite' : ''}" data-id="${card.id}">
                 <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
@@ -592,6 +602,10 @@ class FlashcardApp {
                     <input type="text" class="edit-tags-input" value="${this.escapeHtml(tagsValue)}" 
                            maxlength="100" placeholder="タグ（カンマ区切り）" 
                            onkeypress="if(event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">
+                    
+                    <button type="button" class="manage-related-btn" onclick="openRelatedCardsModal(${card.id})">
+                        🔗 関連カードを管理 ${relatedCardsCount > 0 ? `(${relatedCardsCount})` : ''}
+                    </button>
                 </div>
                 <div class="card-actions">
                     <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
@@ -974,6 +988,78 @@ class FlashcardApp {
     saveForgettingSettings() {
         localStorage.setItem('forgettingSettings', JSON.stringify(this.forgettingSettings));
     }
+    
+    // 関連カードを表示
+    renderRelatedCards(card) {
+        if (!card.relatedCards || !Array.isArray(card.relatedCards) || card.relatedCards.length === 0) {
+            return '';
+        }
+        
+        // 関連カードの情報を取得
+        const relatedCardsInfo = card.relatedCards.map(relatedId => {
+            const relatedCard = this.cards.find(c => c.id === relatedId);
+            if (!relatedCard) return null;
+            
+            return {
+                id: relatedCard.id,
+                question: relatedCard.question
+            };
+        }).filter(info => info !== null);
+        
+        if (relatedCardsInfo.length === 0) {
+            return '';
+        }
+        
+        // 関連カードのリンクを生成
+        const relatedCardsLinks = relatedCardsInfo.map(info => {
+            return `
+                <span class="related-card-link" onclick="event.stopPropagation(); flashcardApp.scrollToCard(${info.id})">
+                    ${this.escapeHtml(info.question)}
+                </span>
+            `;
+        }).join('');
+        
+        return `
+            <div class="related-cards-section">
+                <h4>関連カード</h4>
+                <div class="related-cards-links">
+                    ${relatedCardsLinks}
+                </div>
+            </div>
+        `;
+    }
+    
+    // 特定のカードまでスクロール
+    scrollToCard(cardId) {
+        const cardElement = document.querySelector(`[data-id="${cardId}"]`);
+        if (cardElement) {
+            // カードが表示されていない場合はフィルターをリセット
+            if (cardElement.offsetParent === null) {
+                this.currentFilter = 'all';
+                this.selectedTags = [];
+                this.searchQuery = '';
+                this.render();
+                
+                // 再レンダリング後に要素を再取得
+                setTimeout(() => {
+                    const updatedCardElement = document.querySelector(`[data-id="${cardId}"]`);
+                    if (updatedCardElement) {
+                        updatedCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        updatedCardElement.classList.add('highlight-card');
+                        setTimeout(() => {
+                            updatedCardElement.classList.remove('highlight-card');
+                        }, 2000);
+                    }
+                }, 100);
+            } else {
+                cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cardElement.classList.add('highlight-card');
+                setTimeout(() => {
+                    cardElement.classList.remove('highlight-card');
+                }, 2000);
+            }
+        }
+    }
 }
 
 // グローバル関数（HTMLから呼び出すため）
@@ -1198,6 +1284,175 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// 関連カード選択モーダル関連の変数
+let currentEditingCardId = null;
+let selectedRelatedCards = [];
+
+// 関連カード選択モーダルを開く
+function openRelatedCardsModal(cardId) {
+    currentEditingCardId = cardId;
+    const card = flashcardApp.cards.find(c => c.id === cardId);
+    
+    if (card && card.relatedCards) {
+        selectedRelatedCards = [...card.relatedCards];
+    } else {
+        selectedRelatedCards = [];
+    }
+    
+    const modal = document.getElementById('relatedCardsModal');
+    modal.classList.add('show');
+    
+    // 関連カード検索フィールドをクリア
+    const searchInput = document.getElementById('relatedCardsSearch');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // 関連カードリストを表示
+    renderRelatedCardsList();
+    renderSelectedRelatedCards();
+    
+    // 検索フィールドにイベントリスナーを追加
+    searchInput.addEventListener('input', () => {
+        renderRelatedCardsList(searchInput.value.trim());
+    });
+}
+
+// 関連カード選択モーダルを閉じる
+function closeRelatedCardsModal() {
+    const modal = document.getElementById('relatedCardsModal');
+    modal.classList.remove('show');
+    currentEditingCardId = null;
+    selectedRelatedCards = [];
+}
+
+// 関連カードリストをレンダリング
+function renderRelatedCardsList(searchQuery = '') {
+    const container = document.getElementById('relatedCardsContainer');
+    if (!container || !flashcardApp) return;
+    
+    // 現在編集中のカードを除外した他のカードを取得
+    let availableCards = flashcardApp.cards.filter(card => card.id !== currentEditingCardId);
+    
+    // 検索クエリがある場合はフィルタリング
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        availableCards = availableCards.filter(card => 
+            card.question.toLowerCase().includes(query) || 
+            (card.answer && card.answer.toLowerCase().includes(query))
+        );
+    }
+    
+    if (availableCards.length === 0) {
+        container.innerHTML = '<div class="no-related-cards">関連付け可能なカードがありません</div>';
+        return;
+    }
+    
+    // カードリストを生成
+    const cardsHtml = availableCards.map(card => {
+        const isSelected = selectedRelatedCards.includes(card.id);
+        return `
+            <div class="related-card-item ${isSelected ? 'selected' : ''}" data-id="${card.id}">
+                <div class="related-card-question">${flashcardApp.escapeHtml(card.question)}</div>
+                <button class="related-card-select" onclick="toggleRelatedCard(${card.id})">
+                    ${isSelected ? '選択解除' : '選択'}
+                </button>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = cardsHtml;
+}
+
+// 選択された関連カードを表示
+function renderSelectedRelatedCards() {
+    const container = document.getElementById('selectedCardsList');
+    if (!container || !flashcardApp) return;
+    
+    if (selectedRelatedCards.length === 0) {
+        container.innerHTML = '<div class="no-related-cards">選択されたカードはありません</div>';
+        return;
+    }
+    
+    // 選択されたカードのバッジを生成
+    const selectedCardsHtml = selectedRelatedCards.map(cardId => {
+        const card = flashcardApp.cards.find(c => c.id === cardId);
+        if (!card) return '';
+        
+        return `
+            <div class="selected-card-badge">
+                ${flashcardApp.escapeHtml(card.question)}
+                <span class="remove-related" onclick="toggleRelatedCard(${cardId})">✕</span>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = selectedCardsHtml;
+}
+
+// 関連カードの選択/解除を切り替え
+function toggleRelatedCard(cardId) {
+    const index = selectedRelatedCards.indexOf(cardId);
+    if (index === -1) {
+        selectedRelatedCards.push(cardId);
+    } else {
+        selectedRelatedCards.splice(index, 1);
+    }
+    
+    renderRelatedCardsList(document.getElementById('relatedCardsSearch').value.trim());
+    renderSelectedRelatedCards();
+}
+
+// 関連カードをクリア
+function clearRelatedCards() {
+    selectedRelatedCards = [];
+    renderRelatedCardsList(document.getElementById('relatedCardsSearch').value.trim());
+    renderSelectedRelatedCards();
+}
+
+// 関連カードを適用（双方向）
+function applyRelatedCards() {
+    if (currentEditingCardId === null) return;
+    
+    const card = flashcardApp.cards.find(c => c.id === currentEditingCardId);
+    if (!card) return;
+    
+    // 以前の関連カードから現在のカードへの参照を削除
+    if (card.relatedCards && Array.isArray(card.relatedCards)) {
+        card.relatedCards.forEach(oldRelatedId => {
+            const oldRelatedCard = flashcardApp.cards.find(c => c.id === oldRelatedId);
+            if (oldRelatedCard && oldRelatedCard.relatedCards) {
+                // 古い関連カードから現在のカードへの参照を削除
+                oldRelatedCard.relatedCards = oldRelatedCard.relatedCards.filter(id => id !== currentEditingCardId);
+            }
+        });
+    }
+    
+    // 現在のカードに新しい関連カードを設定
+    card.relatedCards = [...selectedRelatedCards];
+    
+    // 選択された関連カードにも現在のカードを関連付け（双方向）
+    selectedRelatedCards.forEach(relatedId => {
+        const relatedCard = flashcardApp.cards.find(c => c.id === relatedId);
+        if (relatedCard) {
+            // 関連カードがまだ初期化されていない場合は初期化
+            if (!relatedCard.relatedCards) {
+                relatedCard.relatedCards = [];
+            }
+            
+            // 重複を避けるために既に関連付けされているか確認
+            if (!relatedCard.relatedCards.includes(currentEditingCardId)) {
+                relatedCard.relatedCards.push(currentEditingCardId);
+            }
+        }
+    });
+    
+    flashcardApp.saveCards();
+    flashcardApp.render();
+    closeRelatedCardsModal();
+    flashcardApp.showNotification(`${selectedRelatedCards.length}枚のカードを双方向に関連付けました`, 'success');
+}
+
 // アプリケーションを初期化
 let flashcardApp;
 document.addEventListener('DOMContentLoaded', () => {
@@ -1213,6 +1468,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const tagsFilterModal = document.getElementById('tagsFilterModal');
         if (e.target === tagsFilterModal) {
             closeTagsFilter();
+        }
+        
+        const relatedCardsModal = document.getElementById('relatedCardsModal');
+        if (e.target === relatedCardsModal) {
+            closeRelatedCardsModal();
         }
     });
 });
