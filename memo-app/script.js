@@ -8,6 +8,19 @@ class FlashcardApp {
         this.selectedTags = [];
         this.allTags = this.getAllTags();
         
+        // 既存のカードにdisplayIdがない場合は設定する
+        let nextId = 1;
+        this.cards.forEach(card => {
+            if (!card.displayId || card.displayId === 0) {
+                card.displayId = nextId++;
+            }
+        });
+        
+        // 最大のdisplayIdを取得
+        this.maxDisplayId = this.cards.reduce((max, card) => {
+            return card.displayId > max ? card.displayId : max;
+        }, 0);
+        
         // 忘却曲線設定のデフォルト値
         this.forgettingSettings = JSON.parse(localStorage.getItem('forgettingSettings')) || {
             enabled: false,
@@ -157,8 +170,12 @@ class FlashcardApp {
         // タグを処理
         const tags = tagsText ? this.processTags(tagsText) : [];
         
+        // 次のdisplayIdを設定（1から始まる連番）
+        this.maxDisplayId++;
+        
         const card = {
             id: Date.now(),
+            displayId: this.maxDisplayId, // ユーザー向けの連番ID
             question: question,
             answer: answer,
             tags: tags,
@@ -517,6 +534,10 @@ class FlashcardApp {
         // 関連カードを表示
         const relatedCardsHtml = this.renderRelatedCards(card);
         
+        // カードIDを表示用にフォーマット（displayIdを使用）
+        const displayId = card.displayId || 0; // 既存のカードにdisplayIdがない場合は0を表示
+        const cardIdDisplay = `<span class="card-id">${displayId}</span>`;
+        
         // フラッシュカードモードの場合
         if (this.flashcardSettings.enabled) {
             return `
@@ -525,6 +546,7 @@ class FlashcardApp {
                          onclick="flashcardApp.toggleCard(${card.id})"></div>
                     <div class="card-content">
                         <div class="card-question">
+                            ${cardIdDisplay}
                             ${highlightedQuestion}
                             ${hasAnswer ? `<span class="card-indicator ${isExpanded ? 'expanded' : ''}">▶</span>` : ''}
                         </div>
@@ -561,7 +583,7 @@ class FlashcardApp {
                 <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
                      onclick="flashcardApp.toggleCard(${card.id})"></div>
                 <div class="card-content">
-                    <div class="card-question">${highlightedQuestion}</div>
+                    <div class="card-question">${cardIdDisplay} ${highlightedQuestion}</div>
                     ${hasAnswer ? `<div class="card-answer always-visible">${highlightedAnswer}</div>` : ''}
                     ${tagsHtml}
                     ${relatedCardsHtml}
@@ -751,8 +773,12 @@ class FlashcardApp {
             // タグも検索対象に含める
             const tagMatch = card.tags && Array.isArray(card.tags) && 
                 card.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+            
+            // カードIDでも検索できるようにする（内部IDとdisplayID両方で検索可能）
+            const idMatch = card.id.toString().includes(searchTerm);
+            const displayIdMatch = card.displayId && card.displayId.toString().includes(searchTerm);
                 
-            return questionMatch || answerMatch || tagMatch;
+            return questionMatch || answerMatch || tagMatch || idMatch || displayIdMatch;
         });
     }
     

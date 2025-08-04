@@ -1087,6 +1087,20 @@ header h1::before {
     text-align: left;
 }
 
+.card-id {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    min-width: 3.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
 .card-indicator {
     font-size: 0.75rem;
     color: #667eea;
