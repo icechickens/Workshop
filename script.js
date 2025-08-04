@@ -8,6 +8,7 @@ class FlashcardApp {
         this.selectedTags = [];
         this.allTags = this.getAllTags();
         this.isExpandedMode = true; // デフォルトで展開モード
+        this.currentScreen = 'register'; // デフォルトの画面
         
         // ソート設定
         this.sortSettings = JSON.parse(localStorage.getItem('sortSettings')) || {
@@ -65,6 +66,14 @@ class FlashcardApp {
             }
         });
         
+        // URLハッシュに基づいて画面を切り替え
+        this.handleHashChange();
+        
+        // ハッシュ変更イベントを監視
+        window.addEventListener('hashchange', () => {
+            this.handleHashChange();
+        });
+        
         this.render();
         this.updateStats();
         this.updateForgettingStatus();
@@ -74,6 +83,102 @@ class FlashcardApp {
         setInterval(() => {
             this.checkForgettingCurve();
         }, 60000);
+    }
+    
+    // URLハッシュに基づいて画面を切り替え
+    handleHashChange() {
+        const hash = window.location.hash.substring(1) || 'register';
+        const validScreens = ['register', 'search', 'settings'];
+        
+        if (validScreens.includes(hash)) {
+            this.switchScreen(hash);
+        } else {
+            this.switchScreen('register');
+        }
+    }
+    
+    // 画面を切り替える
+    switchScreen(screenName) {
+        this.currentScreen = screenName;
+        
+        // すべての画面を非表示
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+        
+        // すべてのナビゲーションアイテムを非アクティブ
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // 指定された画面を表示
+        const targetScreen = document.getElementById(`${screenName}-screen`);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        }
+        
+        // 対応するナビゲーションアイテムをアクティブ
+        const targetNavItem = document.querySelector(`.nav-item[data-screen="${screenName}"]`);
+        if (targetNavItem) {
+            targetNavItem.classList.add('active');
+        }
+        
+        // 画面に応じた初期化処理
+        switch (screenName) {
+            case 'register':
+                this.initRegisterScreen();
+                break;
+            case 'search':
+                this.initSearchScreen();
+                break;
+            case 'settings':
+                this.initSettingsScreen();
+                break;
+        }
+    }
+    
+    // 登録画面の初期化
+    initRegisterScreen() {
+        this.render();
+        this.updateStats();
+    }
+    
+    // 検索画面の初期化
+    initSearchScreen() {
+        // 検索結果を表示
+        this.renderSearchResults();
+        
+        // 検索カウントを更新
+        const searchCardCount = document.getElementById('searchCardCount');
+        if (searchCardCount) {
+            const filteredCards = this.getFilteredCards();
+            searchCardCount.textContent = `${filteredCards.length}枚のカード`;
+        }
+    }
+    
+    // 設定画面の初期化
+    initSettingsScreen() {
+        // 設定画面の要素を取得
+        const enableDarkMode = document.getElementById('settingsEnableDarkMode');
+        const reviewCount = document.getElementById('settingsReviewCount');
+        const enableNotifications = document.getElementById('settingsEnableNotifications');
+        
+        // 現在の設定を反映
+        if (enableDarkMode) {
+            enableDarkMode.checked = this.darkModeSettings.enabled;
+        }
+        
+        if (reviewCount) {
+            reviewCount.value = this.forgettingSettings.reviewCount;
+            this.generateSettingsIntervalInputs();
+        }
+        
+        if (enableNotifications) {
+            enableNotifications.checked = this.forgettingSettings.notifications;
+        }
+        
+        // 忘却曲線ステータスを更新
+        this.updateForgettingStatus();
     }
     
     // テーマを適用
@@ -119,6 +224,15 @@ class FlashcardApp {
             if (e.ctrlKey && e.key === 'Enter') {
                 this.addCard();
             }
+        });
+        
+        // ナビゲーションメニューのイベント
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const screen = item.dataset.screen;
+                window.location.hash = screen;
+            });
         });
         
         // クリックとダブルクリックの処理
@@ -590,6 +704,9 @@ class FlashcardApp {
     render() {
         const cardList = document.getElementById('cardList');
         const emptyState = document.getElementById('emptyState');
+        
+        if (!cardList || !emptyState) return;
+        
         const filteredCards = this.getFilteredCards();
         
         if (filteredCards.length === 0) {
@@ -618,6 +735,40 @@ class FlashcardApp {
         
         // 一括表示コントロールを更新
         this.updateBulkControl();
+    }
+    
+    // 検索結果をレンダリング
+    renderSearchResults() {
+        const searchCardList = document.getElementById('searchCardList');
+        const searchEmptyState = document.getElementById('searchEmptyState');
+        
+        if (!searchCardList || !searchEmptyState) return;
+        
+        const filteredCards = this.getFilteredCards();
+        
+        if (filteredCards.length === 0) {
+            searchCardList.style.display = 'none';
+            searchEmptyState.classList.add('show');
+            
+            // フィルター別の空状態メッセージ
+            const messages = {
+                all: '検索結果がありません。別のキーワードで検索してください。',
+                active: '学習中のカードがありません。',
+                completed: '習得済みのカードがありません。'
+            };
+            searchEmptyState.querySelector('p').textContent = messages[this.currentFilter];
+        } else {
+            searchCardList.style.display = 'block';
+            searchEmptyState.classList.remove('show');
+        }
+        
+        searchCardList.innerHTML = filteredCards.map(card => {
+            if (this.editingId === card.id) {
+                return this.renderEditingCard(card);
+            } else {
+                return this.renderCard(card);
+            }
+        }).join('');
     }
     
     // 通常のカードアイテムをレンダリング
@@ -870,8 +1021,17 @@ class FlashcardApp {
         clearSearchBtn.style.display = 'block';
         searchResults.textContent = `"${query}" で ${results.length}件見つかりました`;
         
-        // カードリストを再レンダリング
-        this.render();
+        // 検索画面に切り替え
+        window.location.hash = 'search';
+        
+        // 検索結果を再レンダリング
+        this.renderSearchResults();
+        
+        // 検索カウントを更新
+        const searchCardCount = document.getElementById('searchCardCount');
+        if (searchCardCount) {
+            searchCardCount.textContent = `${results.length}枚のカード`;
+        }
         
         this.showNotification(`${results.length}件のカードが見つかりました`, 'info');
     }
@@ -887,8 +1047,15 @@ class FlashcardApp {
         searchInfo.style.display = 'none';
         clearSearchBtn.style.display = 'none';
         
-        // カードリストを再レンダリング
-        this.render();
+        // 検索結果を再レンダリング
+        this.renderSearchResults();
+        
+        // 検索カウントを更新
+        const searchCardCount = document.getElementById('searchCardCount');
+        if (searchCardCount) {
+            const filteredCards = this.getFilteredCards();
+            searchCardCount.textContent = `${filteredCards.length}枚のカード`;
+        }
         
         this.showNotification('検索をクリアしました', 'info');
     }
@@ -1120,29 +1287,32 @@ class FlashcardApp {
         const forgettingSettings = this.forgettingSettings;
         const darkModeSettings = this.darkModeSettings;
         
-        // 忘却曲線は常に有効なのでチェックボックスは削除済み
-        document.getElementById('enableNotifications').checked = forgettingSettings.notifications;
-        document.getElementById('enableDarkMode').checked = darkModeSettings.enabled;
+        // 設定画面の要素を取得
+        const enableNotifications = document.getElementById('settingsEnableNotifications');
+        const enableDarkMode = document.getElementById('settingsEnableDarkMode');
+        const reviewCount = document.getElementById('settingsReviewCount');
         
-        // 復習回数の設定を読み込み
-        document.getElementById('reviewCount').value = forgettingSettings.reviewCount;
+        // 要素が存在する場合のみ設定を適用
+        if (enableNotifications) {
+            enableNotifications.checked = forgettingSettings.notifications;
+        }
         
-        // 復習間隔の入力フィールドを生成
-        this.generateIntervalInputs();
+        if (enableDarkMode) {
+            enableDarkMode.checked = darkModeSettings.enabled;
+        }
         
-        // 復習間隔の値を設定
-        forgettingSettings.intervals.forEach((interval, index) => {
-            const input = document.getElementById(`interval${index + 1}`);
-            if (input) input.value = interval;
-        });
-        
-        this.toggleForgettingSettings();
+        if (reviewCount) {
+            reviewCount.value = forgettingSettings.reviewCount;
+            this.generateSettingsIntervalInputs();
+        }
     }
     
-    // 復習回数に基づいて間隔入力フィールドを動的に生成
-    generateIntervalInputs() {
-        const container = document.getElementById('intervalSettingsContainer');
-        const reviewCount = parseInt(document.getElementById('reviewCount').value) || this.forgettingSettings.reviewCount;
+    // 設定画面用の復習間隔入力フィールドを動的に生成
+    generateSettingsIntervalInputs() {
+        const container = document.getElementById('settingsIntervalSettingsContainer');
+        if (!container) return;
+        
+        const reviewCount = parseInt(document.getElementById('settingsReviewCount').value) || this.forgettingSettings.reviewCount;
         
         // コンテナをクリア
         container.innerHTML = '';
@@ -1157,7 +1327,7 @@ class FlashcardApp {
             
             const input = document.createElement('input');
             input.type = 'number';
-            input.id = `interval${i + 1}`;
+            input.id = `settingsInterval${i + 1}`;
             input.min = '1';
             
             // 回数に応じて最大値を調整
@@ -1319,25 +1489,9 @@ function clearSearch() {
     flashcardApp.clearSearch();
 }
 
-// 設定モーダル関連の関数
-function openSettings() {
-    const modal = document.getElementById('settingsModal');
-    modal.classList.add('show');
-    flashcardApp.loadSettings();
-}
-
-function closeSettings() {
-    const modal = document.getElementById('settingsModal');
-    modal.classList.remove('show');
-}
-
-function toggleForgettingCurve() {
-    flashcardApp.toggleForgettingSettings();
-}
-
 // 復習回数が変更されたときに間隔入力フィールドを更新
 function updateIntervalInputs() {
-    flashcardApp.generateIntervalInputs();
+    flashcardApp.generateSettingsIntervalInputs();
 }
 
 // フラッシュカードモードは常に有効なので切り替え関数は不要
@@ -1353,18 +1507,18 @@ function saveSettings() {
     
     // 忘却曲線は常に有効
     forgettingSettings.enabled = true;
-    forgettingSettings.notifications = document.getElementById('enableNotifications').checked;
+    forgettingSettings.notifications = document.getElementById('settingsEnableNotifications').checked;
     // フラッシュカードモードは常に有効
-    darkModeSettings.enabled = document.getElementById('enableDarkMode').checked;
+    darkModeSettings.enabled = document.getElementById('settingsEnableDarkMode').checked;
     
     // 復習回数を保存
-    const reviewCount = parseInt(document.getElementById('reviewCount').value) || 5;
+    const reviewCount = parseInt(document.getElementById('settingsReviewCount').value) || 5;
     forgettingSettings.reviewCount = reviewCount;
     
     // 間隔設定を保存
     const intervals = [];
     for (let i = 0; i < reviewCount; i++) {
-        const input = document.getElementById(`interval${i + 1}`);
+        const input = document.getElementById(`settingsInterval${i + 1}`);
         if (input) {
             intervals.push(parseInt(input.value) || 1);
         }
@@ -1377,7 +1531,6 @@ function saveSettings() {
     flashcardApp.applyTheme(); // テーマを適用
     flashcardApp.updateForgettingStatus();
     flashcardApp.render(); // フラッシュカードモードの変更を反映
-    closeSettings();
     flashcardApp.showNotification('設定を保存しました', 'success');
 }
 

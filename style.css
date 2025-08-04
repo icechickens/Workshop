@@ -502,7 +502,7 @@ body::after {
 header {
     background: var(--primary-gradient);
     color: white;
-    padding: 2.5rem 2rem;
+    padding: 2.5rem 2rem 1.5rem;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -554,12 +554,86 @@ header h1 {
     align-items: center;
     justify-content: center;
     gap: 20px;
+    margin-bottom: 1.5rem;
 }
 
 .app-logo {
     width: 80px;
     height: auto;
     filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+/* ナビゲーションメニュー */
+.main-nav {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 1rem;
+}
+
+.nav-item {
+    position: relative;
+    transition: all 0.3s var(--transition-bounce);
+}
+
+.nav-item a {
+    display: block;
+    padding: 0.75rem 2rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: var(--radius-xl);
+    transition: all 0.3s var(--transition-bounce);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item:hover a {
+    color: white;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.nav-item.active a {
+    color: white;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid rgba(255, 255, 255, 0.25);
+}
+
+/* 画面コンテナ */
+.screen-container {
+    position: relative;
+    min-height: 300px;
+}
+
+.screen {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.screen.active {
+    display: block;
 }
 
 @media (max-width: 768px) {
@@ -941,7 +1015,7 @@ header h1 {
 }
 
 /* モダンな統計エリア */
-.card-stats {
+.card-stats, .search-card-stats {
     padding: 1.25rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -1802,6 +1876,21 @@ header h1 {
     margin: 10px 0;
     line-height: 1.4;
     text-align: left;
+}
+
+/* 設定画面のスタイル */
+.settings-container {
+    padding: 2rem;
+    background: var(--bg-primary);
+}
+
+.settings-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .review-count-setting {
