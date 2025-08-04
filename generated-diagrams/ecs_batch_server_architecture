@@ -1,0 +1,56 @@
+digraph "ECSバッチサーバアーキテクチャ" {
+	graph [fontcolor="#2D3436" fontname="Sans-Serif" fontsize=15 label="ECSバッチサーバアーキテクチャ" nodesep=0.60 pad=2.0 rankdir=LR ranksep=0.75 splines=ortho]
+	node [fixedsize=true fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13 height=1.4 imagescale=true labelloc=b shape=box style=rounded width=1.4]
+	edge [color="#7B8894"]
+	"5b25a0f922fc43a4bb09f088d98a318c" [label="クライアント" height=1.9 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/general/users.png" shape=none]
+	subgraph "cluster_AWS クラウド" {
+		graph [bgcolor="#E5F5FD" fontname="Sans-Serif" fontsize=12 label="AWS クラウド" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+		"24d6c72def7f480eba1b93d82c9c5411" [label="EventBridge
+スケジュール" height=2.3 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/integration/eventbridge.png" shape=none]
+		"9124294a05cf43268375b0744fcd28f9" [label="ジョブキュー" height=1.9 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/integration/simple-queue-service-sqs.png" shape=none]
+		subgraph cluster_VPC {
+			graph [bgcolor="#EBF3E7" fontname="Sans-Serif" fontsize=12 label=VPC labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+			subgraph "cluster_プライベートサブネット" {
+				graph [bgcolor="#ECE8F6" fontname="Sans-Serif" fontsize=12 label="プライベートサブネット" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+				subgraph "cluster_ECS クラスター" {
+					graph [bgcolor="#FDF7E3" fontname="Sans-Serif" fontsize=12 label="ECS クラスター" labeljust=l pencolor="#AEB6BE" rankdir=LR shape=box style=rounded]
+					"988c913748ca449c8aa6afd8d463f539" [label=Fargate height=1.9 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/compute/fargate.png" shape=none]
+					eb465ee2b4fe40f49fdaae36510fbe8b [label="バッチ処理
+コンテナ1" height=2.3 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/compute/elastic-container-service.png" shape=none]
+					"6711aa478da24ad79607f4e0cacad3ae" [label="バッチ処理
+コンテナ2" height=2.3 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/compute/elastic-container-service.png" shape=none]
+					"090a118d65fc4dfd9c0c42a630c1df11" [label="バッチ処理
+コンテナ3" height=2.3 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/compute/elastic-container-service.png" shape=none]
+				}
+				"0c295f0e4f8046caab1710dffd23e1ce" [label="データベース" height=1.9 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/database/rds.png" shape=none]
+			}
+		}
+		"3f79dfd61a4f4bd5abd085696c52d1dc" [label="S3バケット
+(入出力データ)" height=2.3 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/storage/simple-storage-service-s3.png" shape=none]
+		e5e9cec9b22f4cc6a482cf11aeed713a [label="CloudWatch
+モニタリング" height=2.3 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/management/cloudwatch.png" shape=none]
+		"74e5fec539e74f3fae510079f6c2ddf6" [label="IAMロール" height=1.9 image="/home/ubuntu/.cache/uv/archive-v0/mXLaFWddq51suXk9_c9xG/lib/python3.10/site-packages/resources/aws/security/identity-and-access-management-iam.png" shape=none]
+	}
+	"5b25a0f922fc43a4bb09f088d98a318c" -> "24d6c72def7f480eba1b93d82c9c5411" [label="バッチ処理
+リクエスト" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"24d6c72def7f480eba1b93d82c9c5411" -> "9124294a05cf43268375b0744fcd28f9" [label="スケジュール
+トリガー" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"9124294a05cf43268375b0744fcd28f9" -> eb465ee2b4fe40f49fdaae36510fbe8b [label="ジョブ取得" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"9124294a05cf43268375b0744fcd28f9" -> "6711aa478da24ad79607f4e0cacad3ae" [label="ジョブ取得" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"9124294a05cf43268375b0744fcd28f9" -> "090a118d65fc4dfd9c0c42a630c1df11" [label="ジョブ取得" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"988c913748ca449c8aa6afd8d463f539" -> eb465ee2b4fe40f49fdaae36510fbe8b [label="実行環境" dir=none fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"988c913748ca449c8aa6afd8d463f539" -> "6711aa478da24ad79607f4e0cacad3ae" [label="実行環境" dir=none fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"988c913748ca449c8aa6afd8d463f539" -> "090a118d65fc4dfd9c0c42a630c1df11" [label="実行環境" dir=none fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	eb465ee2b4fe40f49fdaae36510fbe8b -> "3f79dfd61a4f4bd5abd085696c52d1dc" [label="データ読み書き" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"6711aa478da24ad79607f4e0cacad3ae" -> "3f79dfd61a4f4bd5abd085696c52d1dc" [label="データ読み書き" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"090a118d65fc4dfd9c0c42a630c1df11" -> "3f79dfd61a4f4bd5abd085696c52d1dc" [label="データ読み書き" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	eb465ee2b4fe40f49fdaae36510fbe8b -> "0c295f0e4f8046caab1710dffd23e1ce" [label="データ処理" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"6711aa478da24ad79607f4e0cacad3ae" -> "0c295f0e4f8046caab1710dffd23e1ce" [label="データ処理" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"090a118d65fc4dfd9c0c42a630c1df11" -> "0c295f0e4f8046caab1710dffd23e1ce" [label="データ処理" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	eb465ee2b4fe40f49fdaae36510fbe8b -> e5e9cec9b22f4cc6a482cf11aeed713a [label="ログ/メトリクス" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"6711aa478da24ad79607f4e0cacad3ae" -> e5e9cec9b22f4cc6a482cf11aeed713a [label="ログ/メトリクス" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"090a118d65fc4dfd9c0c42a630c1df11" -> e5e9cec9b22f4cc6a482cf11aeed713a [label="ログ/メトリクス" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"74e5fec539e74f3fae510079f6c2ddf6" -> eb465ee2b4fe40f49fdaae36510fbe8b [label="権限付与" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"74e5fec539e74f3fae510079f6c2ddf6" -> "6711aa478da24ad79607f4e0cacad3ae" [label="権限付与" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+	"74e5fec539e74f3fae510079f6c2ddf6" -> "090a118d65fc4dfd9c0c42a630c1df11" [label="権限付与" dir=forward fontcolor="#2D3436" fontname="Sans-Serif" fontsize=13]
+}

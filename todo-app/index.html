@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗記カードアプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>暗記カードアプリ</h1>
+        </header>
+        
+        <div class="card-input">
+            <div class="input-group">
+                <input type="text" id="cardQuestion" placeholder="質問・問題を入力..." maxlength="50" required>
+                <textarea id="cardAnswer" placeholder="答え・解説を入力..." maxlength="200" rows="2"></textarea>
+            </div>
+            <button id="addBtn" onclick="addCard()">カード追加</button>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterCards('all')">すべて</button>
+            <button class="filter-btn" onclick="filterCards('active')">学習中</button>
+            <button class="filter-btn" onclick="filterCards('completed')">習得済み</button>
+        </div>
+        
+        <div class="card-stats">
+            <span id="cardCount">0枚のカード</span>
+            <div class="stats-buttons">
+                <button id="settingsBtn" onclick="openSettings()">⚙️ 設定</button>
+                <button id="clearCompleted" onclick="clearCompleted()">習得済みを削除</button>
+            </div>
+        </div>
+        
+        <!-- 一括表示コントロール -->
+        <div class="bulk-control" id="bulkControl">
+            <div class="bulk-buttons">
+                <button id="expandAllBtn" onclick="expandAllCards()">📖 すべて展開</button>
+                <button id="collapseAllBtn" onclick="collapseAllCards()">📕 すべて閉じる</button>
+            </div>
+            <div class="bulk-info">
+                <span id="expandedCount">0枚展開中</span>
+            </div>
+        </div>
+        
+        <ul id="cardList" class="card-list">
+            <!-- カードアイテムがここに動的に追加されます -->
+        </ul>
+        
+        <div class="empty-state" id="emptyState">
+            <p>カードがありません。新しいカードを追加してください。</p>
+        </div>
+        
+        <!-- 忘却曲線ステータス -->
+        <div class="forgetting-status" id="forgettingStatus">
+            <h3>📚 復習予定のカード</h3>
+            <div id="reviewSchedule"></div>
+        </div>
+    </div>
+    
+    <!-- 設定モーダル -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ 設定</h2>
+                <span class="close" onclick="closeSettings()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <h3>📚 表示設定</h3>
+                    <label class="setting-label">
+                        <input type="checkbox" id="enableFlashcard" onchange="toggleFlashcardMode()">
+                        フラッシュカードモードを有効にする
+                    </label>
+                    <p class="setting-description">
+                        質問をクリックすると答えが表示される暗記カード形式で表示します。
+                    </p>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>🧠 忘却曲線設定</h3>
+                    <label class="setting-label">
+                        <input type="checkbox" id="enableForgetting" onchange="toggleForgettingCurve()">
+                        忘却曲線機能を有効にする
+                    </label>
+                    <p class="setting-description">
+                        習得したカードが設定した間隔で自動的に学習中に戻り、復習を促します。
+                    </p>
+                </div>
+                
+                <div class="setting-group" id="forgettingSettings">
+                    <h4>復習間隔の設定</h4>
+                    <div class="interval-settings">
+                        <div class="interval-item">
+                            <label>1回目の復習:</label>
+                            <input type="number" id="interval1" min="1" max="30" value="1">
+                            <span>日後</span>
+                        </div>
+                        <div class="interval-item">
+                            <label>2回目の復習:</label>
+                            <input type="number" id="interval2" min="1" max="30" value="3">
+                            <span>日後</span>
+                        </div>
+                        <div class="interval-item">
+                            <label>3回目の復習:</label>
+                            <input type="number" id="interval3" min="1" max="60" value="7">
+                            <span>日後</span>
+                        </div>
+                        <div class="interval-item">
+                            <label>4回目の復習:</label>
+                            <input type="number" id="interval4" min="1" max="90" value="14">
+                            <span>日後</span>
+                        </div>
+                        <div class="interval-item">
+                            <label>5回目の復習:</label>
+                            <input type="number" id="interval5" min="1" max="180" value="30">
+                            <span>日後</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-group">
+                        <h4>通知設定</h4>
+                        <label class="setting-label">
+                            <input type="checkbox" id="enableNotifications" checked>
+                            復習カードの通知を表示する
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="resetSettings()">デフォルトに戻す</button>
+                <button class="btn-primary" onclick="saveSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

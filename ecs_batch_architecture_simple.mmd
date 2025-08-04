@@ -1,0 +1,44 @@
+flowchart LR
+    %% スタイル定義
+    classDef aws fill:#FF9900,stroke:#232F3E,color:white
+    classDef client fill:#D5E8D4,stroke:#82B366
+
+    %% ノード定義
+    Client["クライアント"]:::client
+    EventBridge["EventBridge\nスケジュール"]:::aws
+    SQS["SQS\nジョブキュー"]:::aws
+    Fargate["Fargate"]:::aws
+    Container1["バッチ処理\nコンテナ1"]:::aws
+    Container2["バッチ処理\nコンテナ2"]:::aws
+    Container3["バッチ処理\nコンテナ3"]:::aws
+    RDS["RDS\nデータベース"]:::aws
+    S3["S3バケット\n入出力データ"]:::aws
+    CloudWatch["CloudWatch\nモニタリング"]:::aws
+    IAM["IAM\nロール"]:::aws
+    
+    %% 接続関係
+    Client -->|"バッチ処理\nリクエスト"| EventBridge
+    EventBridge -->|"スケジュール\nトリガー"| SQS
+    SQS -->|"ジョブ取得"| Container1
+    SQS -->|"ジョブ取得"| Container2
+    SQS -->|"ジョブ取得"| Container3
+    
+    Fargate -.->|"実行環境"| Container1
+    Fargate -.->|"実行環境"| Container2
+    Fargate -.->|"実行環境"| Container3
+    
+    Container1 -->|"データ読み書き"| S3
+    Container2 -->|"データ読み書き"| S3
+    Container3 -->|"データ読み書き"| S3
+    
+    Container1 -->|"データ処理"| RDS
+    Container2 -->|"データ処理"| RDS
+    Container3 -->|"データ処理"| RDS
+    
+    Container1 -->|"ログ/メトリクス"| CloudWatch
+    Container2 -->|"ログ/メトリクス"| CloudWatch
+    Container3 -->|"ログ/メトリクス"| CloudWatch
+    
+    IAM -.->|"権限付与"| Container1
+    IAM -.->|"権限付与"| Container2
+    IAM -.->|"権限付与"| Container3
