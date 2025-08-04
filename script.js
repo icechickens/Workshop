@@ -7,6 +7,7 @@ class FlashcardApp {
         this.searchQuery = '';
         this.selectedTags = [];
         this.allTags = this.getAllTags();
+        this.isExpandedMode = true; // デフォルトで展開モード
         
         // ソート設定
         this.sortSettings = JSON.parse(localStorage.getItem('sortSettings')) || {
@@ -241,6 +242,11 @@ class FlashcardApp {
             // 関連カード
             relatedCards: []
         };
+        
+        // 現在の展開モードに合わせて、新しいカードを展開するかどうかを決定
+        if (this.isExpandedMode && answer && answer.trim() !== '') {
+            this.expandedCards.add(card.id);
+        }
         
         this.cards.unshift(card);
         this.saveCards();
@@ -813,6 +819,7 @@ class FlashcardApp {
     
     // すべてのカードを展開
     expandAllCards() {
+        this.isExpandedMode = true; // 展開モードに設定
         this.cards.forEach(card => {
             if (card.answer && card.answer.trim() !== '') {
                 this.expandedCards.add(card.id);
@@ -825,6 +832,7 @@ class FlashcardApp {
     
     // すべてのカードを閉じる
     collapseAllCards() {
+        this.isExpandedMode = false; // 閉じるモードに設定
         this.expandedCards.clear();
         this.render();
         this.updateBulkControl();
