@@ -27,9 +27,9 @@ class FlashcardApp {
             return card.displayId > max ? card.displayId : max;
         }, 0);
         
-        // 忘却曲線設定のデフォルト値
+        // 忘却曲線設定のデフォルト値（常に有効）
         this.forgettingSettings = JSON.parse(localStorage.getItem('forgettingSettings')) || {
-            enabled: false,
+            enabled: true, // 常に有効
             reviewCount: 5, // 復習回数のデフォルト値
             intervals: [1, 3, 7, 14, 30], // 日数
             notifications: true
@@ -1018,7 +1018,7 @@ class FlashcardApp {
     
     // 忘却曲線をチェックして復習が必要なカードを学習中に戻す
     checkForgettingCurve() {
-        if (!this.forgettingSettings.enabled) return;
+        // 忘却曲線は常に有効
         
         const now = new Date();
         let reviewedCount = 0;
@@ -1057,10 +1057,7 @@ class FlashcardApp {
         const forgettingStatus = document.getElementById('forgettingStatus');
         const reviewSchedule = document.getElementById('reviewSchedule');
         
-        if (!this.forgettingSettings.enabled) {
-            forgettingStatus.classList.remove('show');
-            return;
-        }
+        // 忘却曲線は常に有効
         
         const reviewCards = this.cards.filter(card => 
             card.completed && card.nextReviewDate
@@ -1114,7 +1111,7 @@ class FlashcardApp {
         const forgettingSettings = this.forgettingSettings;
         const darkModeSettings = this.darkModeSettings;
         
-        document.getElementById('enableForgetting').checked = forgettingSettings.enabled;
+        // 忘却曲線は常に有効なのでチェックボックスは削除済み
         document.getElementById('enableNotifications').checked = forgettingSettings.notifications;
         document.getElementById('enableDarkMode').checked = darkModeSettings.enabled;
         
@@ -1180,16 +1177,10 @@ class FlashcardApp {
         }
     }
     
-    // 忘却曲線設定の表示/非表示を切り替え
+    // 忘却曲線設定は常に表示（常に有効なため）
     toggleForgettingSettings() {
-        const enabled = document.getElementById('enableForgetting').checked;
         const settingsDiv = document.getElementById('forgettingSettings');
-        
-        if (enabled) {
-            settingsDiv.style.display = 'block';
-        } else {
-            settingsDiv.style.display = 'none';
-        }
+        settingsDiv.style.display = 'block';
     }
     
     // フラッシュカードモードは常に有効なので設定保存は不要
@@ -1351,7 +1342,8 @@ function saveSettings() {
     const flashcardSettings = flashcardApp.flashcardSettings;
     const darkModeSettings = flashcardApp.darkModeSettings;
     
-    forgettingSettings.enabled = document.getElementById('enableForgetting').checked;
+    // 忘却曲線は常に有効
+    forgettingSettings.enabled = true;
     forgettingSettings.notifications = document.getElementById('enableNotifications').checked;
     // フラッシュカードモードは常に有効
     darkModeSettings.enabled = document.getElementById('enableDarkMode').checked;
@@ -1383,7 +1375,7 @@ function saveSettings() {
 function resetSettings() {
     if (confirm('設定をデフォルトに戻しますか？')) {
         flashcardApp.forgettingSettings = {
-            enabled: false,
+            enabled: true, // 常に有効
             reviewCount: 5,
             intervals: [1, 3, 7, 14, 30],
             notifications: true
