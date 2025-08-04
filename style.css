@@ -1205,7 +1205,6 @@ header h1::before {
 }
 
 .card-item.completed .card-content {
-    text-decoration: line-through;
     color: var(--text-muted);
 }
 
