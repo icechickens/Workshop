@@ -40,6 +40,11 @@ class FlashcardApp {
             enabled: true // デフォルトでフラッシュカードモードを有効
         };
         
+        // ダークモード設定のデフォルト値
+        this.darkModeSettings = JSON.parse(localStorage.getItem('darkModeSettings')) || {
+            enabled: false // デフォルトでライトモード
+        };
+        
         // 展開されたカードのIDを追跡
         this.expandedCards = new Set();
         
@@ -49,6 +54,7 @@ class FlashcardApp {
     init() {
         this.bindEvents();
         this.loadSettings();
+        this.applyTheme(); // テーマを適用
         this.checkForgettingCurve();
         this.render();
         this.updateStats();
@@ -59,6 +65,15 @@ class FlashcardApp {
         setInterval(() => {
             this.checkForgettingCurve();
         }, 60000);
+    }
+    
+    // テーマを適用
+    applyTheme() {
+        if (this.darkModeSettings.enabled) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
     }
     
     // ソートボタンの状態を更新
@@ -1089,10 +1104,12 @@ class FlashcardApp {
     loadSettings() {
         const forgettingSettings = this.forgettingSettings;
         const flashcardSettings = this.flashcardSettings;
+        const darkModeSettings = this.darkModeSettings;
         
         document.getElementById('enableForgetting').checked = forgettingSettings.enabled;
         document.getElementById('enableNotifications').checked = forgettingSettings.notifications;
         document.getElementById('enableFlashcard').checked = flashcardSettings.enabled;
+        document.getElementById('enableDarkMode').checked = darkModeSettings.enabled;
         
         // 復習回数の設定を読み込み
         document.getElementById('reviewCount').value = forgettingSettings.reviewCount;
@@ -1176,6 +1193,18 @@ class FlashcardApp {
     // 忘却曲線設定を保存
     saveForgettingSettings() {
         localStorage.setItem('forgettingSettings', JSON.stringify(this.forgettingSettings));
+    }
+    
+    // ダークモード設定を保存
+    saveDarkModeSettings() {
+        localStorage.setItem('darkModeSettings', JSON.stringify(this.darkModeSettings));
+    }
+    
+    // ダークモードを切り替え
+    toggleDarkMode() {
+        this.darkModeSettings.enabled = !this.darkModeSettings.enabled;
+        this.applyTheme();
+        this.saveDarkModeSettings();
     }
     
     // 関連カードを表示
@@ -1314,13 +1343,19 @@ function toggleFlashcardMode() {
     flashcardApp.updateBulkControl();
 }
 
+function toggleDarkMode() {
+    flashcardApp.toggleDarkMode();
+}
+
 function saveSettings() {
     const forgettingSettings = flashcardApp.forgettingSettings;
     const flashcardSettings = flashcardApp.flashcardSettings;
+    const darkModeSettings = flashcardApp.darkModeSettings;
     
     forgettingSettings.enabled = document.getElementById('enableForgetting').checked;
     forgettingSettings.notifications = document.getElementById('enableNotifications').checked;
     flashcardSettings.enabled = document.getElementById('enableFlashcard').checked;
+    darkModeSettings.enabled = document.getElementById('enableDarkMode').checked;
     
     // 復習回数を保存
     const reviewCount = parseInt(document.getElementById('reviewCount').value) || 5;
@@ -1338,6 +1373,8 @@ function saveSettings() {
     
     flashcardApp.saveForgettingSettings();
     flashcardApp.saveFlashcardSettings();
+    flashcardApp.saveDarkModeSettings();
+    flashcardApp.applyTheme(); // テーマを適用
     flashcardApp.updateForgettingStatus();
     flashcardApp.render(); // フラッシュカードモードの変更を反映
     closeSettings();
@@ -1355,8 +1392,12 @@ function resetSettings() {
         flashcardApp.flashcardSettings = {
             enabled: true
         };
+        flashcardApp.darkModeSettings = {
+            enabled: false
+        };
         flashcardApp.expandedCards.clear();
         flashcardApp.loadSettings();
+        flashcardApp.applyTheme(); // テーマを適用
         flashcardApp.render();
         flashcardApp.showNotification('設定をリセットしました', 'info');
     }
