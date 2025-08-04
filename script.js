@@ -391,7 +391,14 @@ class FlashcardApp {
             setTimeout(() => {
                 this.cards = this.cards.filter(card => card.id !== id);
                 this.saveCards();
-                this.render();
+                
+                // 現在の画面に応じてレンダリング
+                if (this.currentScreen === 'search') {
+                    this.renderSearchResults();
+                } else {
+                    this.render();
+                }
+                
                 this.updateStats();
                 this.showNotification('カードを削除しました', 'success');
             }, 300);
@@ -420,6 +427,10 @@ class FlashcardApp {
             
             this.saveCards();
             this.render();
+            // 検索画面が表示されている場合は検索結果も更新
+            if (this.currentScreen === 'search') {
+                this.renderSearchResults();
+            }
             this.updateStats();
             this.updateForgettingStatus();
             
@@ -439,6 +450,11 @@ class FlashcardApp {
             const cardElement = document.querySelector(`[data-id="${id}"]`);
             if (cardElement) {
                 cardElement.outerHTML = this.renderCard(card);
+            }
+            
+            // 検索画面でお気に入りフィルターが適用されている場合は検索結果を更新
+            if (this.currentScreen === 'search' && this.currentFilter === 'favorites') {
+                this.renderSearchResults();
             }
             
             const message = card.favorite ? 'お気に入りに追加しました' : 'お気に入りから削除しました';
@@ -537,7 +553,14 @@ class FlashcardApp {
             this.editingId = null;
             this.saveCards();
             this.updateAllTags();
-            this.render();
+            
+            // 現在の画面に応じてレンダリング
+            if (this.currentScreen === 'search') {
+                this.renderSearchResults();
+            } else {
+                this.render();
+            }
+            
             this.showNotification('カードを更新しました', 'success');
         }
     }
@@ -579,7 +602,12 @@ class FlashcardApp {
         });
         event.target.classList.add('active');
         
-        this.render();
+        // 現在の画面に応じてレンダリング
+        if (this.currentScreen === 'search') {
+            this.renderSearchResults();
+        } else {
+            this.render();
+        }
     }
     
     // お気に入りフィルターを適用
@@ -597,7 +625,12 @@ class FlashcardApp {
             document.querySelector('.filter-btn[onclick="filterCards(\'all\')"]').classList.add('active');
         }
         
-        this.render();
+        // 現在の画面に応じてレンダリング
+        if (this.currentScreen === 'search') {
+            this.renderSearchResults();
+        } else {
+            this.render();
+        }
     }
     
     // 習得済みのカードをすべて削除
@@ -612,7 +645,14 @@ class FlashcardApp {
         if (confirm(`${completedCount}枚の習得済みカードを削除しますか？`)) {
             this.cards = this.cards.filter(card => !card.completed);
             this.saveCards();
-            this.render();
+            
+            // 現在の画面に応じてレンダリング
+            if (this.currentScreen === 'search') {
+                this.renderSearchResults();
+            } else {
+                this.render();
+            }
+            
             this.updateStats();
             this.showNotification(`${completedCount}枚のカードを削除しました`, 'success');
         }
