@@ -1846,10 +1846,73 @@ header h1::before {
     
     .card-item {
         padding: 15px 20px;
+        flex-direction: column;
+    }
+    
+    .card-content {
+        width: 100%;
     }
     
     .card-actions {
         flex-direction: column;
-        gap: 5px;
+        gap: 8px;
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .edit-btn, .delete-btn, .save-btn, .cancel-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .favorite-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        margin: 0;
+    }
+    
+    /* 編集フォームのモバイル対応 */
+    .edit-form {
+        width: 100%;
+        padding: 15px !important;
+        margin-right: 0 !important;
+    }
+    
+    .edit-question-input,
+    .edit-answer-input,
+    .edit-tags-input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* 関連カード管理ボタンのモバイル対応 */
+    .manage-related-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        text-align: center;
+    }
+    .card-actions {
+        flex-direction: column;
+        gap: 8px;
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .edit-btn, .delete-btn, .save-btn, .cancel-btn, .favorite-btn {
+        width: 100%;
+        padding: 10px;
+        justify-content: center;
+    }
+    
+    .card-item .edit-form {
+        width: 100%;
     }
 }
