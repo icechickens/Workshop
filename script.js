@@ -204,18 +204,18 @@ class FlashcardApp {
         const tagsText = tagsInput.value.trim();
         
         if (question === '') {
-            this.showNotification('質問を入力してください', 'error');
+            this.showNotification('問題を入力してください', 'error');
             questionInput.focus();
             return;
         }
         
         if (question.length > 50) {
-            this.showNotification('質問は50文字以内で入力してください', 'error');
+            this.showNotification('問題は50文字以内で入力してください', 'error');
             return;
         }
         
         if (answer.length > 200) {
-            this.showNotification('答えは200文字以内で入力してください', 'error');
+            this.showNotification('解説は200文字以内で入力してください', 'error');
             return;
         }
         
@@ -389,18 +389,18 @@ class FlashcardApp {
         const newTagsText = editTagsInput.value.trim();
         
         if (newQuestion === '') {
-            this.showNotification('質問を入力してください', 'error');
+            this.showNotification('問題を入力してください', 'error');
             editQuestionInput.focus();
             return;
         }
         
         if (newQuestion.length > 50) {
-            this.showNotification('質問は50文字以内で入力してください', 'error');
+            this.showNotification('問題は50文字以内で入力してください', 'error');
             return;
         }
         
         if (newAnswer.length > 200) {
-            this.showNotification('答えは200文字以内で入力してください', 'error');
+            this.showNotification('解説は200文字以内で入力してください', 'error');
             return;
         }
         
@@ -676,7 +676,7 @@ class FlashcardApp {
                             </div>
                         ` : `
                             <div class="card-answer no-answer ${isExpanded ? 'expanded' : ''}">
-                                答えがありません
+                                解説がありません
                             </div>
                         `}
                         ${tagsHtml}
@@ -737,9 +737,9 @@ class FlashcardApp {
                      onclick="flashcardApp.toggleCard(${card.id})"></div>
                 <div class="edit-form">
                     <input type="text" class="edit-question-input" value="${this.escapeHtml(card.question)}" 
-                           maxlength="50" placeholder="質問" 
+                           maxlength="50" placeholder="問題" 
                            onkeypress="if(event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">
-                    <textarea class="edit-answer-input" maxlength="200" placeholder="答え（任意）" 
+                    <textarea class="edit-answer-input" maxlength="200" placeholder="解説（任意）" 
                               onkeydown="if(event.ctrlKey && event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">${this.escapeHtml(card.answer || '')}</textarea>
                     <input type="text" class="edit-tags-input" value="${this.escapeHtml(tagsValue)}" 
                            maxlength="100" placeholder="タグ（カンマ区切り）" 
@@ -888,7 +888,7 @@ class FlashcardApp {
     getSearchResults(query) {
         if (!query) return this.cards;
         
-        // #で始まる場合はカードIDの完全一致検索
+        // #で始まる場合はIDの完全一致検索
         if (query.startsWith('#')) {
             const idQuery = query.substring(1); // #を除去
             if (!idQuery) return []; // #のみの場合は空の結果を返す
