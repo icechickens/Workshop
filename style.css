@@ -364,13 +364,13 @@
     transform: translateY(-1px);
 }
 
-/* ライトモード（デフォルト）のカラーパレット */
+/* ライトモード（デフォルト）のカラーパレット - テクノロジー感アップデート */
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --primary-gradient: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    --secondary-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    --success-gradient: linear-gradient(135deg, #0cebeb 0%, #20e3b2 100%);
+    --warning-gradient: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+    --danger-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
     
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
@@ -379,52 +379,56 @@
     --text-secondary: #4a5568;
     --text-muted: #718096;
     --border-color: #e2e8f0;
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 2px 4px rgba(0, 162, 255, 0.1), 0 1px 2px rgba(0, 162, 255, 0.06);
+    --shadow-md: 0 4px 6px rgba(0, 162, 255, 0.1), 0 2px 4px rgba(0, 162, 255, 0.06);
+    --shadow-lg: 0 10px 15px rgba(0, 162, 255, 0.1), 0 4px 6px rgba(0, 162, 255, 0.05);
+    --shadow-xl: 0 20px 25px rgba(0, 162, 255, 0.1), 0 10px 10px rgba(0, 162, 255, 0.04);
     --radius-sm: 0.375rem;
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
     --radius-2xl: 1.5rem;
     
-    /* 新しい変数 */
+    /* テクノロジー感のある変数 */
     --card-hover-transform: translateY(-5px);
     --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
     --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --blur-effect: blur(10px);
+    --glow-effect: 0 0 15px rgba(0, 162, 255, 0.5);
     
-    /* 背景画像 */
-    --bg-image: url('./output/flashcard_background.png');
+    /* 背景画像 - テクノロジー感アップデート */
+    --bg-image: url('./output/flashcard_background_tech.png');
     --container-bg: rgba(255, 255, 255, 0.85);
     --container-border: rgba(255, 255, 255, 0.2);
+    --ui-pattern: url('./output/ui_pattern_simple_tech.png');
 }
 
-/* ダークモードのカラーパレット */
+/* ダークモードのカラーパレット - テクノロジー感アップデート */
 [data-theme="dark"] {
-    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    --secondary-gradient: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-    --success-gradient: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
-    --warning-gradient: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-    --danger-gradient: linear-gradient(135deg, #f43f5e 0%, #fbbf24 100%);
+    --primary-gradient: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+    --secondary-gradient: linear-gradient(135deg, #bc00dd 0%, #7d00b9 100%);
+    --success-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    --warning-gradient: linear-gradient(135deg, #f7b733 0%, #fc4a1a 100%);
+    --danger-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
     
-    --bg-primary: #1e1e2e;
-    --bg-secondary: #181825;
-    --bg-tertiary: #313244;
-    --text-primary: #cdd6f4;
-    --text-secondary: #a6adc8;
-    --text-muted: #7f849c;
-    --border-color: #313244;
-    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --shadow-sm: 0 2px 4px rgba(0, 195, 255, 0.2), 0 1px 2px rgba(0, 195, 255, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 195, 255, 0.2), 0 2px 4px rgba(0, 195, 255, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 195, 255, 0.2), 0 4px 6px rgba(0, 195, 255, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 195, 255, 0.2), 0 10px 10px rgba(0, 195, 255, 0.1);
     
-    /* 背景画像 */
-    --bg-image: linear-gradient(to bottom, #1e1e2e, #11111b);
-    --container-bg: rgba(30, 30, 46, 0.85);
-    --container-border: rgba(49, 50, 68, 0.2);
+    /* 背景画像 - テクノロジー感アップデート */
+    --bg-image: url('./output/flashcard_background_tech.png');
+    --container-bg: rgba(15, 23, 42, 0.85);
+    --container-border: rgba(51, 65, 85, 0.3);
+    --ui-pattern: url('./output/ui_pattern_simple_tech.png');
+    --glow-effect: 0 0 20px rgba(0, 195, 255, 0.4);
 }
 
 body {
@@ -438,6 +442,24 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     transition: background-image 0.5s ease, color 0.3s ease;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 162, 255, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+[data-theme="dark"] body::after {
+    background: linear-gradient(135deg, rgba(0, 195, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
 }
 
 .container {
@@ -449,11 +471,32 @@ body {
     overflow: hidden;
     backdrop-filter: var(--blur-effect);
     border: 1px solid var(--container-border);
-    transition: transform 0.3s var(--transition-bounce), background 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.3s var(--transition-bounce), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
 }
 
 .container:hover {
     transform: translateY(-5px);
+    box-shadow: var(--shadow-xl), var(--glow-effect);
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: var(--primary-gradient);
+    z-index: 1;
+}
+
+[data-theme="dark"] .container {
+    box-shadow: var(--shadow-xl), 0 0 30px rgba(0, 195, 255, 0.1);
+}
+
+[data-theme="dark"] .container:hover {
+    box-shadow: var(--shadow-xl), 0 0 40px rgba(0, 195, 255, 0.2);
 }
 
 header {
@@ -467,6 +510,21 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        rgba(255,255,255,0) 0%, 
+        rgba(255,255,255,0.5) 50%, 
+        rgba(255,255,255,0) 100%);
+    animation: scan-line 4s linear infinite;
 }
 
 header::before {
@@ -476,10 +534,11 @@ header::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('./output/ui_pattern_simple.png');
+    background: var(--ui-pattern);
     background-size: 200px;
-    opacity: 0.1;
+    opacity: 0.15;
     pointer-events: none;
+    animation: pulse-subtle 8s infinite alternate;
 }
 
 header h1 {
@@ -492,16 +551,19 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 header h1::before {
     content: '';
     display: inline-block;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     margin-right: 15px;
-    background: url('./output/flashcard_icon.png') no-repeat center center;
+    background: url('./output/flashcard_icon_tech.png') no-repeat center center;
     background-size: contain;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+    animation: float 6s ease-in-out infinite;
 }
 
 @media (max-width: 768px) {
@@ -529,10 +591,11 @@ header h1::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('./output/ui_pattern_simple.png');
+    background: var(--ui-pattern);
     background-size: 200px;
     opacity: 0.05;
     pointer-events: none;
+    animation: pulse-subtle 10s infinite alternate;
 }
 
 .input-group {
@@ -647,10 +710,11 @@ header h1::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('./output/ui_pattern_simple.png');
+    background: var(--ui-pattern);
     background-size: 200px;
     opacity: 0.05;
     pointer-events: none;
+    animation: pulse-subtle 12s infinite alternate;
 }
 
 .search-input-group {
@@ -1083,9 +1147,10 @@ header h1::before {
     animation: slideIn 0.4s var(--transition-bounce);
     position: relative;
     background: var(--bg-primary);
-    margin: 0.5rem 1rem;
+    margin: 0.75rem 1rem;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
+    overflow: hidden;
 }
 
 .card-item::before {
@@ -1101,14 +1166,37 @@ header h1::before {
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
+.card-item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--ui-pattern);
+    background-size: 300px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+}
+
 .card-item:hover {
     background: var(--bg-secondary);
     transform: var(--card-hover-transform);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), var(--glow-effect);
 }
 
 .card-item:hover::before {
     transform: scaleY(1);
+}
+
+.card-item:hover::after {
+    opacity: 0.03;
+}
+
+[data-theme="dark"] .card-item:hover {
+    box-shadow: var(--shadow-lg), 0 0 15px rgba(0, 195, 255, 0.3);
 }
 
 .card-item.completed {
@@ -1134,19 +1222,29 @@ header h1::before {
     flex-shrink: 0;
     background: var(--bg-primary);
     box-shadow: var(--shadow-sm);
+    z-index: 1;
 }
 
 .card-checkbox:hover {
-    border-color: #667eea;
+    border-color: #3a7bd5;
     transform: scale(1.2);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-md), 0 0 10px rgba(0, 162, 255, 0.3);
 }
 
 .card-checkbox.checked {
     background: var(--primary-gradient);
-    border-color: #667eea;
+    border-color: #3a7bd5;
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 0 15px rgba(0, 162, 255, 0.5);
+    animation: pulse 1.5s infinite;
+}
+
+[data-theme="dark"] .card-checkbox:hover {
+    box-shadow: var(--shadow-md), 0 0 10px rgba(0, 195, 255, 0.4);
+}
+
+[data-theme="dark"] .card-checkbox.checked {
+    box-shadow: 0 0 15px rgba(0, 195, 255, 0.6);
 }
 
 .card-checkbox.checked::after {
@@ -1261,9 +1359,24 @@ header h1::before {
     opacity: 1;
     margin-top: 0.75rem;
     padding: 1.25rem;
-    border: 1px solid rgba(102, 126, 234, 0.3);
+    border: 1px solid rgba(58, 123, 213, 0.3);
     box-shadow: var(--shadow-md);
-    background: linear-gradient(to right bottom, var(--bg-secondary), white);
+    background: linear-gradient(to right bottom, var(--bg-secondary), var(--bg-primary));
+    position: relative;
+    overflow: hidden;
+}
+
+.card-answer.expanded::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--ui-pattern);
+    background-size: 300px;
+    opacity: 0.03;
+    pointer-events: none;
 }
 
 .card-answer.always-visible {
@@ -1271,12 +1384,26 @@ header h1::before {
     opacity: 1;
     margin-top: 0.75rem;
     padding: 1.25rem;
-    background: linear-gradient(to right bottom, var(--bg-secondary), white);
+    background: linear-gradient(to right bottom, var(--bg-secondary), var(--bg-primary));
     border-radius: var(--radius-md);
-    border: 1px solid rgba(102, 126, 234, 0.3);
+    border: 1px solid rgba(58, 123, 213, 0.3);
     overflow: visible;
     text-align: left;
     box-shadow: var(--shadow-md);
+    position: relative;
+}
+
+.card-answer.always-visible::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--ui-pattern);
+    background-size: 300px;
+    opacity: 0.03;
+    pointer-events: none;
 }
 
 .card-answer.no-answer {
@@ -1808,7 +1935,7 @@ header h1::before {
     background: linear-gradient(135deg, #17a2b8, #4facfe);
 }
 
-/* アニメーション */
+/* アニメーション - テクノロジー感アップデート */
 @keyframes slideIn {
     from {
         opacity: 0;
@@ -1853,10 +1980,29 @@ header h1::before {
     100% { transform: scale(1); }
 }
 
+@keyframes pulse-subtle {
+    0% { opacity: 0.03; }
+    50% { opacity: 0.07; }
+    100% { opacity: 0.03; }
+}
+
 @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes scan-line {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { transform: translateY(0); opacity: 1; }
+    90% { transform: translateY(100vh); opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(0, 162, 255, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(0, 162, 255, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(0, 162, 255, 0.5); }
 }
 
 .float-animation {
