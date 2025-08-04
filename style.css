@@ -697,7 +697,7 @@ header h1::before {
 /* 検索機能 */
 .search-container {
     padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
     border-bottom: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
@@ -811,12 +811,12 @@ header h1::before {
 .search-tip {
     margin-top: 0.75rem;
     padding: 0.5rem 1rem;
-    background: rgba(255, 193, 7, 0.1);
+    background: rgba(45, 55, 72, 0.1);
     border-radius: var(--radius-md);
     font-size: 0.75rem;
-    color: #856404;
+    color: var(--text-secondary);
     font-weight: 600;
-    border-left: 3px solid #ffc107;
+    border-left: 3px solid var(--text-secondary);
     display: flex;
     align-items: center;
 }
@@ -828,17 +828,17 @@ header h1::before {
 }
 
 .search-highlight {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-    color: #856404;
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    color: var(--text-secondary);
     padding: 0.125rem 0.25rem;
     border-radius: var(--radius-sm);
     font-weight: 600;
 }
 
 .search-highlight-id {
-    background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+    background: var(--primary-gradient);
     color: white;
-    box-shadow: 0 2px 8px rgba(255, 167, 38, 0.5);
+    box-shadow: 0 2px 8px rgba(45, 55, 72, 0.5);
     animation: pulse 1.5s infinite;
 }
 
@@ -1024,7 +1024,7 @@ header h1::before {
 /* モダンな一括表示コントロール */
 .bulk-control {
     padding: 1.25rem 2rem;
-    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
     border-bottom: 1px solid var(--border-color);
     display: none;
     justify-content: space-between;
@@ -1120,14 +1120,15 @@ header h1::before {
 
 .bulk-info {
     font-size: 0.875rem;
-    color: #1976d2;
+    color: var(--text-secondary);
     font-weight: 600;
     position: relative;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--bg-primary);
     padding: 0.5rem 1rem;
     border-radius: var(--radius-lg);
     backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
 }
 
 /* モダンなカードリスト */
@@ -1646,8 +1647,8 @@ header h1::before {
 /* 忘却曲線ステータス */
 .forgetting-status {
     padding: 20px 30px;
-    background: #fff3cd;
-    border-top: 1px solid #ffeaa7;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
     display: none;
 }
 
@@ -1657,7 +1658,7 @@ header h1::before {
 
 .forgetting-status h3 {
     margin: 0 0 15px 0;
-    color: #856404;
+    color: var(--text-secondary);
     font-size: 16px;
 }
 
@@ -1672,25 +1673,26 @@ header h1::before {
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: white;
+    background: var(--bg-primary);
     border-radius: 8px;
-    border-left: 4px solid #ffc107;
+    border-left: 4px solid var(--text-secondary);
     font-size: 14px;
+    box-shadow: var(--shadow-sm);
 }
 
 .review-item .task-title {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .review-item .review-info {
-    color: #666;
+    color: var(--text-muted);
     font-size: 12px;
 }
 
 .review-badge {
-    background: #ffc107;
-    color: #212529;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 11px;
@@ -1715,7 +1717,7 @@ header h1::before {
 }
 
 .modal-content {
-    background-color: white;
+    background-color: var(--bg-primary);
     margin: 5% auto;
     border-radius: 15px;
     width: 90%;
@@ -1723,15 +1725,17 @@ header h1::before {
     max-height: 80vh;
     overflow-y: auto;
     animation: slideDown 0.3s ease;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
 }
 
 .modal-header {
     padding: 20px 30px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #2c3e50 0%, #4a5568 100%);
+    background: var(--primary-gradient);
     color: white;
     border-radius: 15px 15px 0 0;
 }
@@ -1759,7 +1763,7 @@ header h1::before {
 
 .modal-footer {
     padding: 20px 30px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
     gap: 15px;
@@ -1772,14 +1776,14 @@ header h1::before {
 
 .setting-group h3 {
     margin: 0 0 15px 0;
-    color: #333;
+    color: var(--text-primary);
     font-size: 1.2rem;
     text-align: left;
 }
 
 .setting-group h4 {
     margin: 15px 0 10px 0;
-    color: #555;
+    color: var(--text-secondary);
     font-size: 1rem;
     text-align: left;
 }
@@ -1801,7 +1805,7 @@ header h1::before {
 }
 
 .setting-description {
-    color: #666;
+    color: var(--text-muted);
     font-size: 14px;
     margin: 10px 0;
     line-height: 1.4;
@@ -1813,7 +1817,7 @@ header h1::before {
     align-items: center;
     gap: 10px;
     padding: 10px 15px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 8px;
     margin: 15px 0;
 }
@@ -1826,14 +1830,16 @@ header h1::before {
 .review-count-setting input[type="number"] {
     width: 80px;
     padding: 8px 12px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 14px;
     text-align: center;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .review-count-setting input[type="number"]:focus {
-    border-color: #4a5568;
+    border-color: var(--text-secondary);
     outline: none;
 }
 
@@ -1849,7 +1855,7 @@ header h1::before {
     align-items: center;
     gap: 10px;
     padding: 10px 15px;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     border-radius: 8px;
 }
 
@@ -1861,14 +1867,16 @@ header h1::before {
 .interval-item input[type="number"] {
     width: 80px;
     padding: 8px 12px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 14px;
     text-align: center;
+    background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .interval-item input[type="number"]:focus {
-    border-color: #4a5568;
+    border-color: var(--text-secondary);
     outline: none;
 }
 
@@ -1883,7 +1891,7 @@ header h1::before {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #2c3e50 0%, #4a5568 100%);
+    background: var(--primary-gradient);
     color: white;
 }
 
@@ -1893,12 +1901,13 @@ header h1::before {
 }
 
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+    background: var(--text-muted);
+    color: white;
     transform: translateY(-1px);
 }
 
