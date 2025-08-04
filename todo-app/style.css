@@ -28,11 +28,20 @@
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
     --radius-2xl: 1.5rem;
+    
+    /* 新しい変数 */
+    --card-hover-transform: translateY(-5px);
+    --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --blur-effect: blur(10px);
 }
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: url('./output/flashcard_background.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     min-height: 100vh;
     padding: 1.5rem;
     color: var(--text-primary);
@@ -42,11 +51,17 @@ body {
 .container {
     max-width: 56rem;
     margin: 0 auto;
-    background: var(--bg-primary);
+    background: rgba(255, 255, 255, 0.85);
     border-radius: var(--radius-2xl);
     box-shadow: var(--shadow-xl);
     overflow: hidden;
-    backdrop-filter: blur(10px);
+    backdrop-filter: var(--blur-effect);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s var(--transition-bounce);
+}
+
+.container:hover {
+    transform: translateY(-5px);
 }
 
 header {
@@ -56,6 +71,10 @@ header {
     text-align: center;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 header::before {
@@ -65,7 +84,9 @@ header::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="90" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    background: url('./output/ui_pattern_simple.png');
+    background-size: 200px;
+    opacity: 0.1;
     pointer-events: none;
 }
 
@@ -76,6 +97,19 @@ header h1 {
     position: relative;
     z-index: 1;
     letter-spacing: -0.025em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header h1::before {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    background: url('./output/flashcard_icon.png') no-repeat center center;
+    background-size: contain;
 }
 
 @media (max-width: 768px) {
@@ -87,11 +121,26 @@ header h1 {
 /* モダンなカード入力エリア */
 .card-input {
     padding: 2rem;
-    background: var(--bg-secondary);
+    background: linear-gradient(to right, var(--bg-secondary), white);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     gap: 1.5rem;
     align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-input::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('./output/ui_pattern_simple.png');
+    background-size: 200px;
+    opacity: 0.05;
+    pointer-events: none;
 }
 
 .input-group {
@@ -158,7 +207,7 @@ header h1 {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s var(--transition-bounce);
     height: fit-content;
     align-self: flex-start;
     box-shadow: var(--shadow-md);
@@ -167,15 +216,27 @@ header h1 {
 }
 
 #addBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
     color: white !important;
 }
 
 #addBtn:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
     color: white !important;
     background: var(--primary-gradient) !important;
+}
+
+#addBtn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+    clip-path: polygon(0 0, 100% 0, 100% 30%, 0 60%);
+    pointer-events: none;
 }
 
 /* 検索機能 */
@@ -184,6 +245,20 @@ header h1 {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border-bottom: 1px solid var(--border-color);
     position: relative;
+    overflow: hidden;
+}
+
+.search-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('./output/ui_pattern_simple.png');
+    background-size: 200px;
+    opacity: 0.05;
+    pointer-events: none;
 }
 
 .search-input-group {
@@ -300,29 +375,31 @@ header h1 {
     background: var(--bg-primary);
     border-radius: var(--radius-xl);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s var(--transition-bounce);
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--text-secondary);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
 }
 
 .filter-btn:hover {
     border-color: #667eea;
     color: #667eea;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
 }
 
 .filter-btn.active {
     background: var(--primary-gradient) !important;
     color: white !important;
     border-color: transparent;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .filter-btn:active {
+    transform: translateY(-1px);
     color: white !important;
     background: var(--primary-gradient) !important;
 }
@@ -523,10 +600,13 @@ header h1 {
     align-items: flex-start;
     padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--border-color);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s var(--transition-bounce);
+    animation: slideIn 0.4s var(--transition-bounce);
     position: relative;
     background: var(--bg-primary);
+    margin: 0.5rem 1rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
 }
 
 .card-item::before {
@@ -538,13 +618,14 @@ header h1 {
     width: 4px;
     background: var(--primary-gradient);
     transform: scaleY(0);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s var(--transition-bounce);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
 .card-item:hover {
     background: var(--bg-secondary);
-    transform: translateX(4px);
-    box-shadow: var(--shadow-sm);
+    transform: var(--card-hover-transform);
+    box-shadow: var(--shadow-lg);
 }
 
 .card-item:hover::before {
@@ -562,14 +643,14 @@ header h1 {
 }
 
 .card-checkbox {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
     border: 2px solid var(--border-color);
     border-radius: 50%;
     margin-right: 1rem;
     margin-top: 0.25rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s var(--transition-bounce);
     position: relative;
     flex-shrink: 0;
     background: var(--bg-primary);
@@ -578,14 +659,15 @@ header h1 {
 
 .card-checkbox:hover {
     border-color: #667eea;
-    transform: scale(1.1);
+    transform: scale(1.2);
     box-shadow: var(--shadow-md);
 }
 
 .card-checkbox.checked {
     background: var(--primary-gradient);
     border-color: #667eea;
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
 }
 
 .card-checkbox.checked::after {
@@ -595,7 +677,7 @@ header h1 {
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: bold;
 }
 
@@ -673,7 +755,7 @@ header h1 {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s var(--transition-bounce);
     margin-top: 0;
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
@@ -685,21 +767,23 @@ header h1 {
     max-height: 12rem;
     opacity: 1;
     margin-top: 0.75rem;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
+    padding: 1.25rem;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(to right bottom, var(--bg-secondary), white);
 }
 
 .card-answer.always-visible {
     max-height: none;
     opacity: 1;
     margin-top: 0.75rem;
-    padding: 1rem;
-    background: var(--bg-secondary);
+    padding: 1.25rem;
+    background: linear-gradient(to right bottom, var(--bg-secondary), white);
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(102, 126, 234, 0.3);
     overflow: visible;
     text-align: left;
+    box-shadow: var(--shadow-md);
 }
 
 .card-answer.no-answer {
@@ -727,12 +811,12 @@ header h1 {
 }
 
 .edit-btn, .delete-btn, .save-btn, .cancel-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.25rem;
     border: none;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     font-size: 0.75rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s var(--transition-bounce);
     font-weight: 600;
     box-shadow: var(--shadow-sm);
     position: relative;
@@ -745,12 +829,13 @@ header h1 {
 }
 
 .edit-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
     color: white !important; /* 文字色を白に固定 */
 }
 
 .edit-btn:active:not(:disabled) {
+    transform: translateY(-1px);
     color: white !important; /* アクティブ時も文字色を白に固定 */
 }
 
@@ -766,12 +851,13 @@ header h1 {
 }
 
 .delete-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
     color: white !important; /* 文字色を白に固定 */
 }
 
 .delete-btn:active {
+    transform: translateY(-1px);
     color: white !important; /* アクティブ時も文字色を白に固定 */
 }
 
@@ -1127,12 +1213,14 @@ header h1 {
     top: 20px;
     right: 20px;
     padding: 15px 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     color: white;
     font-weight: 500;
     z-index: 1001;
     transform: translateX(100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.4s var(--transition-bounce);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: var(--blur-effect);
 }
 
 .notification.show {
@@ -1140,15 +1228,15 @@ header h1 {
 }
 
 .notification.success {
-    background: #28a745;
+    background: linear-gradient(135deg, #28a745, #20c997);
 }
 
 .notification.error {
-    background: #dc3545;
+    background: linear-gradient(135deg, #dc3545, #ff6b6b);
 }
 
 .notification.info {
-    background: #17a2b8;
+    background: linear-gradient(135deg, #17a2b8, #4facfe);
 }
 
 /* アニメーション */
@@ -1188,6 +1276,26 @@ header h1 {
         opacity: 0;
         transform: scale(0.8);
     }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.float-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
 }
 
 /* レスポンシブデザイン */
