@@ -8,6 +8,12 @@ class FlashcardApp {
         this.selectedTags = [];
         this.allTags = this.getAllTags();
         
+        // ソート設定
+        this.sortSettings = JSON.parse(localStorage.getItem('sortSettings')) || {
+            field: 'createdAt', // デフォルトは登録日時順
+            direction: 'desc'   // デフォルトは降順（新しい順）
+        };
+        
         // 既存のカードにdisplayIdがない場合は設定する
         let nextId = 1;
         this.cards.forEach(card => {
@@ -47,11 +53,33 @@ class FlashcardApp {
         this.render();
         this.updateStats();
         this.updateForgettingStatus();
+        this.updateSortButtons();
         
         // 定期的に忘却曲線をチェック（1分ごと）
         setInterval(() => {
             this.checkForgettingCurve();
         }, 60000);
+    }
+    
+    // ソートボタンの状態を更新
+    updateSortButtons() {
+        const sortButtons = document.querySelectorAll('.sort-btn');
+        sortButtons.forEach(btn => {
+            const field = btn.dataset.field;
+            
+            // アクティブなソートボタンを強調表示
+            if (field === this.sortSettings.field) {
+                btn.classList.add('active');
+                
+                // 方向表示を更新
+                const directionIndicator = btn.querySelector('.sort-direction');
+                if (directionIndicator) {
+                    directionIndicator.textContent = this.sortSettings.direction === 'asc' ? '▲' : '▼';
+                }
+            } else {
+                btn.classList.remove('active');
+            }
+        });
     }
     
     bindEvents() {
@@ -461,14 +489,71 @@ class FlashcardApp {
         // 状態フィルター
         switch (this.currentFilter) {
             case 'active':
-                return filteredCards.filter(card => !card.completed);
+                filteredCards = filteredCards.filter(card => !card.completed);
+                break;
             case 'completed':
-                return filteredCards.filter(card => card.completed);
+                filteredCards = filteredCards.filter(card => card.completed);
+                break;
             case 'favorites':
-                return filteredCards.filter(card => card.favorite);
-            default:
-                return filteredCards;
+                filteredCards = filteredCards.filter(card => card.favorite);
+                break;
         }
+        
+        // ソート
+        filteredCards = this.sortCards(filteredCards);
+        
+        return filteredCards;
+    }
+    
+    // カードをソート
+    sortCards(cards) {
+        const { field, direction } = this.sortSettings;
+        
+        return [...cards].sort((a, b) => {
+            let valueA, valueB;
+            
+            // ソートフィールドに基づいて値を取得
+            switch (field) {
+                case 'createdAt':
+                    valueA = new Date(a.createdAt).getTime();
+                    valueB = new Date(b.createdAt).getTime();
+                    break;
+                case 'updatedAt':
+                    // updatedAtがない場合はcreatedAtを使用
+                    valueA = a.updatedAt ? new Date(a.updatedAt).getTime() : new Date(a.createdAt).getTime();
+                    valueB = b.updatedAt ? new Date(b.updatedAt).getTime() : new Date(b.createdAt).getTime();
+                    break;
+                default:
+                    valueA = new Date(a.createdAt).getTime();
+                    valueB = new Date(b.createdAt).getTime();
+            }
+            
+            // ソート方向に基づいて比較
+            return direction === 'asc' ? valueA - valueB : valueB - valueA;
+        });
+    }
+    
+    // ソート設定を変更
+    changeSortOrder(field) {
+        // 同じフィールドがクリックされた場合は方向を切り替え
+        if (field === this.sortSettings.field) {
+            this.sortSettings.direction = this.sortSettings.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            // 新しいフィールドの場合はそのフィールドで降順（新しい順）に設定
+            this.sortSettings.field = field;
+            this.sortSettings.direction = 'desc';
+        }
+        
+        // ソート設定を保存
+        localStorage.setItem('sortSettings', JSON.stringify(this.sortSettings));
+        
+        // カードリストを再レンダリング
+        this.render();
+        
+        // 通知を表示
+        const fieldName = field === 'createdAt' ? '登録日時' : '更新日時';
+        const directionName = this.sortSettings.direction === 'asc' ? '古い順' : '新しい順';
+        this.showNotification(`${fieldName}の${directionName}でソートしました`, 'info');
     }
     
     // カードリストをレンダリング
@@ -670,6 +755,9 @@ class FlashcardApp {
         
         // 一括表示コントロールの表示/非表示
         this.updateBulkControl();
+        
+        // ソートボタンの状態を更新
+        this.updateSortButtons();
     }
     
     // 一括表示コントロールを更新
@@ -1378,6 +1466,11 @@ function clearTagsFilter() {
     renderTagsFilter();
     flashcardApp.render();
     flashcardApp.showNotification('タグフィルターをクリアしました', 'info');
+}
+
+// ソート順変更関数
+function changeSortOrder(field) {
+    flashcardApp.changeSortOrder(field);
 }
 
 // キーボードショートカット

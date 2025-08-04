@@ -747,10 +747,9 @@ header h1::before {
 
 /* モダンなフィルターボタン */
 .filter-buttons {
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 2rem 0.75rem;
     display: flex;
     gap: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
     background: var(--bg-primary);
 }
 
@@ -787,6 +786,68 @@ header h1::before {
     transform: translateY(-1px);
     color: white !important;
     background: var(--primary-gradient) !important;
+}
+
+/* ソートボタン */
+.sort-buttons {
+    padding: 0.75rem 2rem 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-primary);
+}
+
+.sort-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.sort-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    cursor: pointer;
+    transition: all 0.3s var(--transition-bounce);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.sort-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.sort-btn.active {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.sort-btn.active.asc::after {
+    content: '↑';
+    margin-left: 0.25rem;
+}
+
+.sort-btn.active.desc::after {
+    content: '↓';
+    margin-left: 0.25rem;
+}
+
+.sort-direction {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-left: auto;
 }
 
 /* モダンな統計エリア */

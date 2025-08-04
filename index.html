@@ -67,6 +67,17 @@
             <button class="filter-btn" id="tagsFilterBtn" onclick="openTagsFilter()">🏷️ タグ</button>
         </div>
         
+        <!-- ソート機能 -->
+        <div class="sort-buttons">
+            <span class="sort-label">並び替え:</span>
+            <button class="sort-btn" data-field="createdAt" onclick="changeSortOrder('createdAt')">
+                登録日時 <span class="sort-direction">▼</span>
+            </button>
+            <button class="sort-btn" data-field="updatedAt" onclick="changeSortOrder('updatedAt')">
+                更新日時 <span class="sort-direction">▼</span>
+            </button>
+        </div>
+        
         <div class="card-stats">
             <span id="cardCount">0枚のカード</span>
             <div class="stats-buttons">
@@ -218,4 +229,3 @@
     
     <script src="script.js"></script>
 </body>
-</html>
