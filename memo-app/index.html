@@ -27,12 +27,15 @@
         <!-- 検索機能 -->
         <div class="search-container">
             <div class="search-input-group">
-                <input type="text" id="searchInput" placeholder="質問や答えを検索..." maxlength="100">
+                <input type="text" id="searchInput" placeholder="質問、答え、タグを検索..." maxlength="100">
                 <button id="searchBtn" onclick="performSearch()">🔍</button>
                 <button id="clearSearchBtn" onclick="clearSearch()" style="display: none;">✕</button>
             </div>
             <div class="search-info" id="searchInfo" style="display: none;">
                 <span id="searchResults">0件見つかりました</span>
+            </div>
+            <div class="search-tip">
+                <span>💡 カードID検索: #1 のように「#」を先頭につけると、IDの完全一致検索ができます</span>
             </div>
         </div>
         

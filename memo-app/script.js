@@ -536,7 +536,17 @@ class FlashcardApp {
         
         // カードIDを表示用にフォーマット（displayIdを使用）
         const displayId = card.displayId || 0; // 既存のカードにdisplayIdがない場合は0を表示
-        const cardIdDisplay = `<span class="card-id">${displayId}</span>`;
+        
+        // 検索クエリがあり、IDが検索クエリに一致する場合はハイライト表示
+        let cardIdDisplay;
+        if (this.searchQuery && (
+            displayId.toString().includes(this.searchQuery.toLowerCase()) || 
+            card.id.toString().includes(this.searchQuery.toLowerCase())
+        )) {
+            cardIdDisplay = `<span class="card-id search-highlight-id">${displayId}</span>`;
+        } else {
+            cardIdDisplay = `<span class="card-id">${displayId}</span>`;
+        }
         
         // フラッシュカードモードの場合
         if (this.flashcardSettings.enabled) {
@@ -765,6 +775,20 @@ class FlashcardApp {
     getSearchResults(query) {
         if (!query) return this.cards;
         
+        // #で始まる場合はカードIDの完全一致検索
+        if (query.startsWith('#')) {
+            const idQuery = query.substring(1); // #を除去
+            if (!idQuery) return []; // #のみの場合は空の結果を返す
+            
+            // displayIdの完全一致検索
+            const matchedCard = this.cards.find(card => 
+                card.displayId && card.displayId.toString() === idQuery
+            );
+            
+            return matchedCard ? [matchedCard] : [];
+        }
+        
+        // 通常の検索（#で始まらない場合）
         const searchTerm = query.toLowerCase();
         return this.cards.filter(card => {
             const questionMatch = card.question.toLowerCase().includes(searchTerm);
@@ -773,12 +797,8 @@ class FlashcardApp {
             // タグも検索対象に含める
             const tagMatch = card.tags && Array.isArray(card.tags) && 
                 card.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-            
-            // カードIDでも検索できるようにする（内部IDとdisplayID両方で検索可能）
-            const idMatch = card.id.toString().includes(searchTerm);
-            const displayIdMatch = card.displayId && card.displayId.toString().includes(searchTerm);
                 
-            return questionMatch || answerMatch || tagMatch || idMatch || displayIdMatch;
+            return questionMatch || answerMatch || tagMatch;
         });
     }
     

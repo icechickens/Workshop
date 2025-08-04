@@ -711,12 +711,38 @@ header h1::before {
     border-left: 3px solid #667eea;
 }
 
+.search-tip {
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    color: #856404;
+    font-weight: 600;
+    border-left: 3px solid #ffc107;
+    display: flex;
+    align-items: center;
+}
+
+.search-tip span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .search-highlight {
     background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
     color: #856404;
     padding: 0.125rem 0.25rem;
     border-radius: var(--radius-sm);
     font-weight: 600;
+}
+
+.search-highlight-id {
+    background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 167, 38, 0.5);
+    animation: pulse 1.5s infinite;
 }
 
 /* モダンなフィルターボタン */
