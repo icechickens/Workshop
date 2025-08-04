@@ -343,12 +343,13 @@ class FlashcardApp {
         }
     }
     
-    // タグを処理する（カンマ区切りのタグを配列に変換）
+    // タグを処理する（カンマ区切りのタグを配列に変換し、重複を排除）
     processTags(tagsText) {
-        return tagsText.split(',')
+        // 重複を排除するためにSetを使用
+        return [...new Set(tagsText.split(',')
             .map(tag => tag.trim())
             .filter(tag => tag !== '')
-            .map(tag => tag.toLowerCase());
+            .map(tag => tag.toLowerCase()))];
     }
     
     // すべてのタグを取得
