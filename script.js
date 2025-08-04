@@ -616,6 +616,7 @@ class FlashcardApp {
         let metaInfo = `作成日: ${createdDate}`;
         if (updatedDate) metaInfo += ` | 更新日: ${updatedDate}`;
         if (completedDate) metaInfo += ` | 習得日: ${completedDate}`;
+        if (card.reviewCount > 0) metaInfo += ` | 学習回数: ${card.reviewCount}回目`;
         
         const isExpanded = this.expandedCards.has(card.id);
         const hasAnswer = card.answer && card.answer.trim() !== '';
