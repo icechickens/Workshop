@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Answer Alignment Test</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-card {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Card Answer Alignment Test</h1>
+        
+        <div class="test-card">
+            <h3>Test 1: card-answer expanded</h3>
+            <div class="debug-info">
+                Expected: Text should be left-aligned<br>
+                Class: card-answer expanded
+            </div>
+            <div class="card-answer expanded">
+                ありがとうございました。
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>Test 2: card-answer always-visible</h3>
+            <div class="debug-info">
+                Expected: Text should be left-aligned<br>
+                Class: card-answer always-visible
+            </div>
+            <div class="card-answer always-visible">
+                ありがとうございました。
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>Test 3: Multiple lines</h3>
+            <div class="debug-info">
+                Expected: All lines should be left-aligned<br>
+                Class: card-answer expanded
+            </div>
+            <div class="card-answer expanded">
+                ありがとうございました。
+                これは複数行のテストです。
+                左寄せになっているはずです。
+            </div>
+        </div>
+
+        <div class="test-card">
+            <h3>Test 4: With card-content wrapper</h3>
+            <div class="debug-info">
+                Expected: Text should be left-aligned within card-content<br>
+                Structure: card-content > card-answer expanded
+            </div>
+            <div class="card-content">
+                <div class="card-question">テスト問題</div>
+                <div class="card-answer expanded">
+                    ありがとうございました。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // デバッグ用：計算されたスタイルを表示
+        document.addEventListener('DOMContentLoaded', function() {
+            const answers = document.querySelectorAll('.card-answer');
+            answers.forEach((answer, index) => {
+                const computedStyle = window.getComputedStyle(answer);
+                console.log(`Card Answer ${index + 1}:`, {
+                    textAlign: computedStyle.textAlign,
+                    paddingLeft: computedStyle.paddingLeft,
+                    marginLeft: computedStyle.marginLeft,
+                    textIndent: computedStyle.textIndent,
+                    direction: computedStyle.direction
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -71,13 +71,9 @@ export class UIComponents {
                             ${hasAnswer ? `<span class="card-indicator ${isExpanded ? 'expanded' : ''}">▶</span>` : ''}
                         </div>
                         ${hasAnswer ? `
-                            <div class="card-answer ${isExpanded ? 'expanded' : ''}">
-                                ${highlightedAnswer}
-                            </div>
+                            <div class="card-answer ${isExpanded ? 'expanded' : ''}">${highlightedAnswer}</div>
                         ` : `
-                            <div class="card-answer no-answer ${isExpanded ? 'expanded' : ''}">
-                                解説がありません
-                            </div>
+                            <div class="card-answer no-answer ${isExpanded ? 'expanded' : ''}">解説がありません</div>
                         `}
                         ${tagsHtml}
                         ${relatedCardsHtml}

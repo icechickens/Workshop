@@ -1411,7 +1411,9 @@ li.card-item.completed:not(.favorite) {
     border-radius: var(--radius-lg);
     padding: 0.5rem;
     margin: -0.5rem;
-    text-align: left;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
 }
 
 .card-content:hover {
@@ -1494,7 +1496,10 @@ li.card-item.completed:not(.favorite) {
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     padding: 0;
-    text-align: left;
+    text-align: left !important;
+    text-indent: 0 !important;
+    margin-left: 0 !important;
+    padding-left: 0;
 }
 
 .card-answer.expanded {
@@ -1502,11 +1507,15 @@ li.card-item.completed:not(.favorite) {
     opacity: 1;
     margin-top: 0.75rem;
     padding: 1.25rem;
+    padding-left: 1rem !important;
     border: 1px solid rgba(45, 55, 72, 0.3);
     box-shadow: var(--shadow-md);
     background: linear-gradient(to right bottom, var(--bg-secondary), var(--bg-primary));
     position: relative;
     overflow: hidden;
+    text-align: left !important;
+    text-indent: 0 !important;
+    margin-left: 0 !important;
 }
 
 .card-answer.expanded::after {
@@ -1527,11 +1536,14 @@ li.card-item.completed:not(.favorite) {
     opacity: 1;
     margin-top: 0.75rem;
     padding: 1.25rem;
+    padding-left: 1rem !important;
     background: linear-gradient(to right bottom, var(--bg-secondary), var(--bg-primary));
     border-radius: var(--radius-md);
     border: 1px solid rgba(45, 55, 72, 0.3);
     overflow: visible;
-    text-align: left;
+    text-align: left !important;
+    text-indent: 0 !important;
+    margin-left: 0 !important;
     box-shadow: var(--shadow-md);
     position: relative;
 }
@@ -2343,4 +2355,134 @@ li.card-item.completed:not(.favorite) {
     .card-item .edit-form {
         width: 100%;
     }
+}
+/* カード解説の左寄せを完全に強制 */
+.card-answer,
+.card-answer.expanded,
+.card-answer.always-visible {
+    direction: ltr !important;
+    unicode-bidi: embed !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    display: block !important;
+}
+
+.card-answer *,
+.card-answer.expanded *,
+.card-answer.always-visible * {
+    text-align: left !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    text-indent: 0 !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+}
+
+/* 特に expanded クラスの左寄せを強化 */
+.card-answer.expanded {
+    text-align: left !important;
+    padding-left: 1rem !important;
+    margin-left: 0 !important;
+    text-indent: 0 !important;
+    display: block !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+}
+/* 最強の左寄せ強制スタイル */
+.card-answer.expanded {
+    text-align: left !important;
+    padding-left: 1rem !important;
+    margin-left: 0 !important;
+    text-indent: 0 !important;
+    display: block !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    position: relative !important;
+}
+
+/* 絶対的な左寄せ強制 */
+.card-answer.expanded::before {
+    content: '' !important;
+    display: block !important;
+    width: 0 !important;
+    height: 0 !important;
+    float: left !important;
+}
+
+/* テキストノードの左寄せ強制 */
+.card-answer.expanded {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: none !important;
+}
+/* 中央寄せを完全に無効化し、左寄せを強制 */
+.card-answer.expanded,
+.card-answer.always-visible {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    margin: 0 !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    text-indent: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 親要素からの中央寄せ継承を防ぐ */
+.card-content .card-answer.expanded,
+.card-content .card-answer.always-visible {
+    text-align: left !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* テキストノードレベルでの左寄せ強制 */
+.card-answer.expanded::first-line,
+.card-answer.always-visible::first-line {
+    text-align: left !important;
+    text-indent: 0 !important;
+}
+
+/* すべての子要素の中央寄せを無効化 */
+.card-answer.expanded *,
+.card-answer.always-visible * {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    margin-left: 0 !important;
+    text-indent: 0 !important;
+}
+/* 最高優先度での左寄せ強制 - 最終手段 */
+div.card-answer.expanded,
+div.card-answer.always-visible {
+    text-align: left !important;
+    direction: ltr !important;
+    unicode-bidi: normal !important;
+    text-indent: 0px !important;
+    margin-left: 0px !important;
+    padding-left: 16px !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    display: block !important;
+    width: auto !important;
+    position: relative !important;
+}
+
+/* HTMLの空白文字による中央寄せを防ぐ */
+div.card-answer.expanded {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    text-align-last: left !important;
+}
+
+/* 継承による中央寄せを完全にブロック */
+.card-content div.card-answer.expanded {
+    text-align: left !important;
+    margin: 0.75rem 0 0 0 !important;
+    padding: 1.25rem 1.25rem 1.25rem 1rem !important;
 }
