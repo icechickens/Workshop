@@ -49,7 +49,7 @@
 }
 
 .card-tag {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    background: var(--bg-tertiary);
     color: #2d3748;
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-xl);
@@ -66,11 +66,12 @@
 .card-tag:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
-    background: linear-gradient(135deg, #cbd5e1 0%, #a0aec0 100%);
+    background: var(--text-muted);
+    color: white;
 }
 
 .card-tag.active {
-    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    background: var(--text-primary);
     color: white;
     box-shadow: 0 3px 10px rgba(45, 55, 72, 0.4);
 }
@@ -88,7 +89,7 @@
 }
 
 .tag-filter-item {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    background: var(--bg-tertiary);
     color: #2d3748;
     padding: 0.5rem 1rem;
     border-radius: var(--radius-xl);
@@ -108,7 +109,7 @@
 }
 
 .tag-filter-item.selected {
-    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    background: var(--text-primary);
     color: white;
     box-shadow: 0 3px 10px rgba(45, 55, 72, 0.4);
 }
@@ -201,7 +202,7 @@
 }
 
 .related-card-item.selected {
-    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    background: var(--text-primary);
     color: white;
     box-shadow: 0 3px 10px rgba(45, 55, 72, 0.4);
 }
@@ -256,7 +257,7 @@
 }
 
 .selected-card-badge {
-    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    background: var(--text-primary);
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-xl);
@@ -324,7 +325,7 @@
 }
 
 .related-card-link {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    background: var(--bg-tertiary);
     color: #2d3748;
     padding: 0.25rem 0.75rem;
     border-radius: var(--radius-xl);
@@ -342,7 +343,8 @@
 .related-card-link:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
-    background: linear-gradient(135deg, #cbd5e1 0%, #a0aec0 100%);
+    background: var(--text-muted);
+    color: white;
 }
 
 .manage-related-btn {
@@ -645,7 +647,7 @@ header h1 {
 /* モダンなカード入力エリア */
 .card-input {
     padding: 2rem;
-    background: linear-gradient(to right, var(--bg-secondary), white);
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     gap: 1.5rem;
@@ -797,7 +799,7 @@ header h1 {
 /* 検索機能 */
 .search-container {
     padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
@@ -927,7 +929,7 @@ header h1 {
 }
 
 .search-highlight {
-    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    background: var(--bg-tertiary);
     color: var(--text-secondary);
     padding: 0.125rem 0.25rem;
     border-radius: var(--radius-sm);
@@ -1122,7 +1124,7 @@ header h1 {
 /* モダンな一括表示コントロール */
 .bulk-control {
     padding: 1.25rem 2rem;
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     display: none;
     justify-content: space-between;
@@ -1510,7 +1512,7 @@ li.card-item.completed:not(.favorite) {
     padding-left: 1rem !important;
     border: 1px solid rgba(45, 55, 72, 0.3);
     box-shadow: var(--shadow-md);
-    background: linear-gradient(to right bottom, var(--bg-secondary), var(--bg-primary));
+    background: var(--bg-secondary);
     position: relative;
     overflow: hidden;
     text-align: left !important;
@@ -1537,7 +1539,7 @@ li.card-item.completed:not(.favorite) {
     margin-top: 0.75rem;
     padding: 1.25rem;
     padding-left: 1rem !important;
-    background: linear-gradient(to right bottom, var(--bg-secondary), var(--bg-primary));
+    background: var(--bg-secondary);
     border-radius: var(--radius-md);
     border: 1px solid rgba(45, 55, 72, 0.3);
     overflow: visible;
@@ -1613,9 +1615,9 @@ li.card-item.completed:not(.favorite) {
 }
 
 .favorite-btn.active {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    background: var(--warning-color, #f59e0b);
     color: white;
-    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+    box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
 }
 
 
@@ -2095,15 +2097,15 @@ li.card-item.completed:not(.favorite) {
 }
 
 .notification.success {
-    background: linear-gradient(135deg, #28a745, #20c997);
+    background: var(--success-color, #10b981);
 }
 
 .notification.error {
-    background: linear-gradient(135deg, #dc3545, #ff6b6b);
+    background: var(--danger-color, #ef4444);
 }
 
 .notification.info {
-    background: linear-gradient(135deg, #17a2b8, #4facfe);
+    background: var(--info-color, #3b82f6);
 }
 
 /* アニメーション - テクノロジー感アップデート */
