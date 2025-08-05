@@ -356,4 +356,90 @@ export class CardService {
 
         this.saveCards();
     }
+
+    /**
+     * カードにURLを追加
+     * @param {number} cardId - カードID
+     * @param {string} url - 追加するURL
+     * @returns {Card|null} 更新されたカード
+     */
+    addUrlToCard(cardId, url) {
+        const card = this.getCardById(cardId);
+        if (!card) {
+            throw new Error(`ID ${cardId} のカードが見つかりません`);
+        }
+
+        card.addUrl(url);
+        this.saveCards();
+        return card;
+    }
+
+    /**
+     * カードからURLを削除
+     * @param {number} cardId - カードID
+     * @param {string} url - 削除するURL
+     * @returns {Card|null} 更新されたカード
+     */
+    removeUrlFromCard(cardId, url) {
+        const card = this.getCardById(cardId);
+        if (!card) {
+            throw new Error(`ID ${cardId} のカードが見つかりません`);
+        }
+
+        const success = card.removeUrl(url);
+        if (success) {
+            this.saveCards();
+        }
+        return card;
+    }
+
+    /**
+     * カードに画像を追加
+     * @param {number} cardId - カードID
+     * @param {File} file - 画像ファイル
+     * @returns {Promise<{card: Card, imageId: string}>} 更新されたカードと画像ID
+     */
+    async addImageToCard(cardId, file) {
+        const card = this.getCardById(cardId);
+        if (!card) {
+            throw new Error(`ID ${cardId} のカードが見つかりません`);
+        }
+
+        const imageId = await card.addImage(file);
+        this.saveCards();
+        return { card, imageId };
+    }
+
+    /**
+     * カードから画像を削除
+     * @param {number} cardId - カードID
+     * @param {string} imageId - 画像ID
+     * @returns {Card|null} 更新されたカード
+     */
+    removeImageFromCard(cardId, imageId) {
+        const card = this.getCardById(cardId);
+        if (!card) {
+            throw new Error(`ID ${cardId} のカードが見つかりません`);
+        }
+
+        const success = card.removeImage(imageId);
+        if (success) {
+            this.saveCards();
+        }
+        return card;
+    }
+
+    /**
+     * カードの画像データを取得
+     * @param {number} cardId - カードID
+     * @param {string} imageId - 画像ID
+     * @returns {string|null} 画像データ（Base64）
+     */
+    getCardImageData(cardId, imageId) {
+        const card = this.getCardById(cardId);
+        if (!card) {
+            return null;
+        }
+        return card.getImageData(imageId);
+    }
 }

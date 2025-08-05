@@ -47,6 +47,29 @@
                         <button type="button" class="manage-related-btn" id="manageRelatedBtn" onclick="openRelatedCardsModalForNew()">
                             🔗 関連カードを管理 <span id="relatedCardsCount">(0)</span>
                         </button>
+                        
+                        <!-- URL入力セクション -->
+                        <div class="url-management">
+                            <label>関連URL (最大10個):</label>
+                            <div class="url-input-container">
+                                <input type="url" id="newCardUrlInput" class="url-input" placeholder="https://example.com">
+                                <button type="button" class="add-url-btn" onclick="addUrlToNewCard()">追加</button>
+                            </div>
+                            <div class="urls-list" id="newCardUrlsList">
+                                <div class="no-urls">URLが登録されていません</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 画像入力セクション -->
+                        <div class="image-management">
+                            <label>画像 (最大2個、各5MB以下):</label>
+                            <div class="image-input-container">
+                                <input type="file" id="newCardImageInput" class="image-input" accept="image/*" onchange="addImageToNewCard(this.files[0])">
+                            </div>
+                            <div class="images-list" id="newCardImagesList">
+                                <div class="no-images">画像が登録されていません</div>
+                            </div>
+                        </div>
                     </div>
                     <button id="addBtn" onclick="addCard()">カード追加</button>
                 </div>
@@ -234,6 +257,19 @@
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="clearRelatedCards()">クリア</button>
                 <button class="btn-primary" onclick="applyRelatedCards()">適用</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 画像表示モーダル -->
+    <div id="imageModal" class="modal image-modal">
+        <div class="modal-content image-modal-content">
+            <div class="modal-header">
+                <h2 id="modalImageName">画像</h2>
+                <span class="close" onclick="closeImageModal()">&times;</span>
+            </div>
+            <div class="modal-body image-modal-body">
+                <img id="modalImage" src="" alt="画像" class="modal-image">
             </div>
         </div>
     </div>

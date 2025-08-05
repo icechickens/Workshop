@@ -1,3 +1,5 @@
+import { CONFIG } from '../config.js';
+
 /**
  * カードモデルクラス
  */
@@ -20,6 +22,9 @@ export class Card {
         this.nextReviewDate = data.nextReviewDate || null;
         this.lastCompletedAt = data.lastCompletedAt || null;
         this.relatedCards = data.relatedCards || [];
+        this.urls = data.urls || [];
+        this.images = data.images || [];
+        this.imageData = data.imageData || {};
     }
 
     /**
@@ -31,12 +36,43 @@ export class Card {
             throw new Error('問題は必須です');
         }
         
-        if (data.question.length > 50) {
-            throw new Error('問題は50文字以内で入力してください');
+        if (data.question.length > CONFIG.LIMITS.QUESTION_MAX_LENGTH) {
+            throw new Error(`問題は${CONFIG.LIMITS.QUESTION_MAX_LENGTH}文字以内で入力してください`);
         }
         
-        if (data.answer && data.answer.length > 200) {
-            throw new Error('解答は200文字以内で入力してください');
+        if (data.answer && data.answer.length > CONFIG.LIMITS.ANSWER_MAX_LENGTH) {
+            throw new Error(`解答は${CONFIG.LIMITS.ANSWER_MAX_LENGTH}文字以内で入力してください`);
+        }
+
+        // URL配列のバリデーション
+        if (data.urls && Array.isArray(data.urls)) {
+            if (data.urls.length > CONFIG.LIMITS.URLS_MAX_COUNT) {
+                throw new Error(`URLは${CONFIG.LIMITS.URLS_MAX_COUNT}個まで登録できます`);
+            }
+            
+            data.urls.forEach((url, index) => {
+                if (typeof url !== 'string' || url.trim() === '') {
+                    throw new Error(`URL ${index + 1}が無効です`);
+                }
+                
+                if (url.length > CONFIG.LIMITS.URL_MAX_LENGTH) {
+                    throw new Error(`URL ${index + 1}は${CONFIG.LIMITS.URL_MAX_LENGTH}文字以内で入力してください`);
+                }
+                
+                // 簡単なURL形式チェック
+                try {
+                    new URL(url);
+                } catch (e) {
+                    throw new Error(`URL ${index + 1}の形式が正しくありません`);
+                }
+            });
+        }
+
+        // 画像配列のバリデーション
+        if (data.images && Array.isArray(data.images)) {
+            if (data.images.length > CONFIG.LIMITS.IMAGES_MAX_COUNT) {
+                throw new Error(`画像は${CONFIG.LIMITS.IMAGES_MAX_COUNT}個まで登録できます`);
+            }
         }
     }
 
@@ -177,7 +213,10 @@ export class Card {
             reviewCount: this.reviewCount,
             nextReviewDate: this.nextReviewDate,
             lastCompletedAt: this.lastCompletedAt,
-            relatedCards: this.relatedCards
+            relatedCards: this.relatedCards,
+            urls: this.urls,
+            images: this.images,
+            imageData: this.imageData
         };
     }
 
@@ -217,5 +256,159 @@ export class Card {
 
             return direction === 'asc' ? valueA - valueB : valueB - valueA;
         });
+    }
+
+    /**
+     * URLを追加
+     * @param {string} url - 追加するURL
+     * @returns {boolean} 追加が成功したかどうか
+     */
+    addUrl(url) {
+        if (!url || typeof url !== 'string' || url.trim() === '') {
+            throw new Error('有効なURLを入力してください');
+        }
+
+        const trimmedUrl = url.trim();
+        
+        // URL形式チェック
+        try {
+            new URL(trimmedUrl);
+        } catch (e) {
+            throw new Error('URLの形式が正しくありません');
+        }
+
+        // 長さチェック
+        if (trimmedUrl.length > CONFIG.LIMITS.URL_MAX_LENGTH) {
+            throw new Error(`URLは${CONFIG.LIMITS.URL_MAX_LENGTH}文字以内で入力してください`);
+        }
+
+        // 重複チェック
+        if (this.urls.includes(trimmedUrl)) {
+            throw new Error('このURLは既に登録されています');
+        }
+
+        // 上限チェック
+        if (this.urls.length >= CONFIG.LIMITS.URLS_MAX_COUNT) {
+            throw new Error(`URLは${CONFIG.LIMITS.URLS_MAX_COUNT}個まで登録できます`);
+        }
+
+        this.urls.push(trimmedUrl);
+        this.updatedAt = new Date().toISOString();
+        return true;
+    }
+
+    /**
+     * URLを削除
+     * @param {string} url - 削除するURL
+     * @returns {boolean} 削除が成功したかどうか
+     */
+    removeUrl(url) {
+        const index = this.urls.indexOf(url);
+        if (index === -1) {
+            return false;
+        }
+
+        this.urls.splice(index, 1);
+        this.updatedAt = new Date().toISOString();
+        return true;
+    }
+
+    /**
+     * 画像を追加
+     * @param {File} file - 画像ファイル
+     * @returns {Promise<string>} 画像ID
+     */
+    async addImage(file) {
+        if (!file || !(file instanceof File)) {
+            throw new Error('有効な画像ファイルを選択してください');
+        }
+
+        // ファイルタイプチェック
+        if (!file.type.startsWith('image/')) {
+            throw new Error('画像ファイルのみアップロード可能です');
+        }
+
+        // ファイルサイズチェック
+        if (file.size > CONFIG.LIMITS.IMAGE_MAX_SIZE) {
+            throw new Error(`画像ファイルは${CONFIG.LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB以下にしてください`);
+        }
+
+        // 上限チェック
+        if (this.images.length >= CONFIG.LIMITS.IMAGES_MAX_COUNT) {
+            throw new Error(`画像は${CONFIG.LIMITS.IMAGES_MAX_COUNT}個まで登録できます`);
+        }
+
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    const imageInfo = {
+                        id: imageId,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        uploadedAt: new Date().toISOString()
+                    };
+
+                    this.images.push(imageInfo);
+                    this.imageData[imageId] = e.target.result;
+                    this.updatedAt = new Date().toISOString();
+                    
+                    resolve(imageId);
+                } catch (error) {
+                    reject(new Error('画像の処理中にエラーが発生しました'));
+                }
+            };
+
+            reader.onerror = () => {
+                reject(new Error('画像ファイルの読み込みに失敗しました'));
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /**
+     * 画像を削除
+     * @param {string} imageId - 画像ID
+     * @returns {boolean} 削除が成功したかどうか
+     */
+    removeImage(imageId) {
+        const index = this.images.findIndex(img => img.id === imageId);
+        if (index === -1) {
+            return false;
+        }
+
+        this.images.splice(index, 1);
+        delete this.imageData[imageId];
+        this.updatedAt = new Date().toISOString();
+        return true;
+    }
+
+    /**
+     * 画像データを取得
+     * @param {string} imageId - 画像ID
+     * @returns {string|null} 画像データ（Base64）
+     */
+    getImageData(imageId) {
+        return this.imageData[imageId] || null;
+    }
+
+    /**
+     * すべてのURLを取得
+     * @returns {string[]} URL配列
+     */
+    getUrls() {
+        return [...this.urls];
+    }
+
+    /**
+     * すべての画像情報を取得
+     * @returns {Object[]} 画像情報配列
+     */
+    getImages() {
+        return [...this.images];
     }
 }

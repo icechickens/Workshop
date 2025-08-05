@@ -27,6 +27,11 @@ export class FlashcardApp {
         // 新規カード作成時の関連カード
         this.newCardRelatedCards = [];
         
+        // 新規カード作成時のURL・画像
+        this.newCardUrls = [];
+        this.newCardImages = [];
+        this.newCardImageData = {};
+        
         this.init();
     }
 
@@ -37,6 +42,8 @@ export class FlashcardApp {
         this.bindEvents();
         this.applyTheme();
         this.updateNewCardRelatedCardsCount(); // 新規カード作成時の関連カード数を初期化
+        this.updateNewCardUrlsList(); // 新規カード作成時のURLリストを初期化
+        this.updateNewCardImagesList(); // 新規カード作成時の画像リストを初期化
         this.checkForgettingCurve();
         
         // デフォルトで全てのカードを展開状態にする
@@ -462,7 +469,10 @@ export class FlashcardApp {
             question,
             answer,
             tags: tagsText ? this.processTags(tagsText) : [],
-            relatedCards: [...this.newCardRelatedCards] // 新規カード作成時の関連カードを追加
+            relatedCards: [...this.newCardRelatedCards], // 新規カード作成時の関連カードを追加
+            urls: [...this.newCardUrls], // 新規カード作成時のURLを追加
+            images: [...this.newCardImages], // 新規カード作成時の画像情報を追加
+            imageData: { ...this.newCardImageData } // 新規カード作成時の画像データを追加
         };
 
         const card = this.cardService.addCard(cardData);
@@ -485,6 +495,14 @@ export class FlashcardApp {
         // 新規カード作成時の関連カードもクリア
         this.newCardRelatedCards = [];
         this.updateNewCardRelatedCardsCount();
+        
+        // 新規カード作成時のURL・画像データもクリア
+        this.newCardUrls = [];
+        this.newCardImages = [];
+        this.newCardImageData = {};
+        this.updateNewCardUrlsList();
+        this.updateNewCardImagesList();
+        
         answerInput.style.borderColor = '#e0e0e0';
         tagsInput.style.borderColor = '#e0e0e0';
         questionInput.focus();
@@ -500,6 +518,220 @@ export class FlashcardApp {
         if (countElement) {
             countElement.textContent = `(${this.newCardRelatedCards.length})`;
         }
+    }
+
+    /**
+     * 新規カード作成時のURLリストを更新
+     */
+    updateNewCardUrlsList() {
+        const urlsList = getElement('#newCardUrlsList');
+        if (!urlsList) return;
+
+        if (this.newCardUrls.length === 0) {
+            urlsList.innerHTML = '<div class="no-urls">URLが登録されていません</div>';
+            return;
+        }
+
+        const urlsHtml = this.newCardUrls.map(url => {
+            const displayUrl = url.length > 60 ? url.substring(0, 57) + '...' : url;
+            return `
+                <div class="editable-url-item">
+                    <a href="${this.escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="url-link">
+                        🔗 ${this.escapeHtml(displayUrl)}
+                    </a>
+                    <button type="button" class="remove-url-btn" onclick="removeUrlFromNewCard('${this.escapeHtml(url)}')">
+                        削除
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        urlsList.innerHTML = urlsHtml;
+    }
+
+    /**
+     * 新規カード作成時の画像リストを更新
+     */
+    updateNewCardImagesList() {
+        const imagesList = getElement('#newCardImagesList');
+        if (!imagesList) return;
+
+        if (this.newCardImages.length === 0) {
+            imagesList.innerHTML = '<div class="no-images">画像が登録されていません</div>';
+            return;
+        }
+
+        const imagesHtml = this.newCardImages.map(imageInfo => {
+            const imageData = this.newCardImageData[imageInfo.id];
+            if (!imageData) return '';
+
+            return `
+                <div class="editable-image-item">
+                    <img src="${imageData}" alt="${this.escapeHtml(imageInfo.name)}" class="edit-image-thumbnail">
+                    <div class="image-details">
+                        <div class="image-name">${this.escapeHtml(imageInfo.name)}</div>
+                        <div class="image-size">${this.formatFileSize(imageInfo.size)}</div>
+                    </div>
+                    <button type="button" class="remove-image-btn" onclick="removeImageFromNewCard('${imageInfo.id}')">
+                        削除
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        imagesList.innerHTML = imagesHtml;
+    }
+
+    /**
+     * 新規カード作成時にURLを追加
+     * @param {string} url - 追加するURL
+     */
+    addUrlToNewCard(url) {
+        if (!url || typeof url !== 'string' || url.trim() === '') {
+            throw new Error('有効なURLを入力してください');
+        }
+
+        const trimmedUrl = url.trim();
+        
+        // URL形式チェック
+        try {
+            new URL(trimmedUrl);
+        } catch (e) {
+            throw new Error('URLの形式が正しくありません');
+        }
+
+        // 長さチェック
+        if (trimmedUrl.length > CONFIG.LIMITS.URL_MAX_LENGTH) {
+            throw new Error(`URLは${CONFIG.LIMITS.URL_MAX_LENGTH}文字以内で入力してください`);
+        }
+
+        // 重複チェック
+        if (this.newCardUrls.includes(trimmedUrl)) {
+            throw new Error('このURLは既に登録されています');
+        }
+
+        // 上限チェック
+        if (this.newCardUrls.length >= CONFIG.LIMITS.URLS_MAX_COUNT) {
+            throw new Error(`URLは${CONFIG.LIMITS.URLS_MAX_COUNT}個まで登録できます`);
+        }
+
+        this.newCardUrls.push(trimmedUrl);
+        this.updateNewCardUrlsList();
+        return true;
+    }
+
+    /**
+     * 新規カード作成時にURLを削除
+     * @param {string} url - 削除するURL
+     */
+    removeUrlFromNewCard(url) {
+        const index = this.newCardUrls.indexOf(url);
+        if (index === -1) {
+            return false;
+        }
+
+        this.newCardUrls.splice(index, 1);
+        this.updateNewCardUrlsList();
+        return true;
+    }
+
+    /**
+     * 新規カード作成時に画像を追加
+     * @param {File} file - 画像ファイル
+     * @returns {Promise<string>} 画像ID
+     */
+    async addImageToNewCard(file) {
+        if (!file || !(file instanceof File)) {
+            throw new Error('有効な画像ファイルを選択してください');
+        }
+
+        // ファイルタイプチェック
+        if (!file.type.startsWith('image/')) {
+            throw new Error('画像ファイルのみアップロード可能です');
+        }
+
+        // ファイルサイズチェック
+        if (file.size > CONFIG.LIMITS.IMAGE_MAX_SIZE) {
+            throw new Error(`画像ファイルは${CONFIG.LIMITS.IMAGE_MAX_SIZE / (1024 * 1024)}MB以下にしてください`);
+        }
+
+        // 上限チェック
+        if (this.newCardImages.length >= CONFIG.LIMITS.IMAGES_MAX_COUNT) {
+            throw new Error(`画像は${CONFIG.LIMITS.IMAGES_MAX_COUNT}個まで登録できます`);
+        }
+
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    const imageInfo = {
+                        id: imageId,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        uploadedAt: new Date().toISOString()
+                    };
+
+                    this.newCardImages.push(imageInfo);
+                    this.newCardImageData[imageId] = e.target.result;
+                    this.updateNewCardImagesList();
+                    
+                    resolve(imageId);
+                } catch (error) {
+                    reject(new Error('画像の処理中にエラーが発生しました'));
+                }
+            };
+
+            reader.onerror = () => {
+                reject(new Error('画像ファイルの読み込みに失敗しました'));
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /**
+     * 新規カード作成時に画像を削除
+     * @param {string} imageId - 画像ID
+     */
+    removeImageFromNewCard(imageId) {
+        const index = this.newCardImages.findIndex(img => img.id === imageId);
+        if (index === -1) {
+            return false;
+        }
+
+        this.newCardImages.splice(index, 1);
+        delete this.newCardImageData[imageId];
+        this.updateNewCardImagesList();
+        return true;
+    }
+
+    /**
+     * HTMLエスケープ処理
+     * @param {string} text - エスケープするテキスト
+     * @returns {string} エスケープされたテキスト
+     */
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    /**
+     * ファイルサイズをフォーマット
+     * @param {number} bytes - バイト数
+     * @returns {string} フォーマットされたサイズ
+     */
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     /**

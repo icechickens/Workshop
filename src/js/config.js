@@ -37,7 +37,11 @@ export const CONFIG = {
         ANSWER_MAX_LENGTH: 200,
         TAGS_MAX_LENGTH: 100,
         REVIEW_COUNT_MIN: 1,
-        REVIEW_COUNT_MAX: 10
+        REVIEW_COUNT_MAX: 10,
+        URLS_MAX_COUNT: 10,
+        IMAGES_MAX_COUNT: 2,
+        URL_MAX_LENGTH: 500,
+        IMAGE_MAX_SIZE: 5 * 1024 * 1024 // 5MB
     },
 
     // UI設定

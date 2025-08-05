@@ -1,4 +1,5 @@
 import { escapeHtml, highlightText, formatDate } from '../utils.js';
+import { CONFIG } from '../config.js';
 
 /**
  * UIコンポーネントクラス
@@ -49,6 +50,12 @@ export class UIComponents {
         // 関連カードを表示
         const relatedCardsHtml = UIComponents.renderRelatedCards(card, relatedCards);
 
+        // URLを表示
+        const urlsHtml = UIComponents.renderCardUrls(card);
+
+        // 画像を表示
+        const imagesHtml = UIComponents.renderCardImages(card);
+
         // カードIDを表示用にフォーマット
         const displayId = card.displayId || 0;
         let cardIdDisplay;
@@ -76,6 +83,8 @@ export class UIComponents {
                             <div class="card-answer no-answer ${isExpanded ? 'expanded' : ''}">解説がありません</div>
                         `}
                         ${tagsHtml}
+                        ${urlsHtml}
+                        ${imagesHtml}
                         ${relatedCardsHtml}
                         <div class="card-meta">${metaInfo}</div>
                     </div>
@@ -102,6 +111,8 @@ export class UIComponents {
                     <div class="card-question">${cardIdDisplay} ${highlightedQuestion}</div>
                     ${hasAnswer ? `<div class="card-answer always-visible">${highlightedAnswer}</div>` : ''}
                     ${tagsHtml}
+                    ${urlsHtml}
+                    ${imagesHtml}
                     ${relatedCardsHtml}
                     <div class="card-meta">${metaInfo}</div>
                 </div>
@@ -148,6 +159,31 @@ export class UIComponents {
                     <button type="button" class="manage-related-btn" onclick="event.stopPropagation(); openRelatedCardsModal(${card.id})">
                         🔗 関連カードを管理 ${relatedCardsCount > 0 ? `(${relatedCardsCount})` : ''}
                     </button>
+                    
+                    <div class="url-management">
+                        <label>関連URL (最大${CONFIG.LIMITS.URLS_MAX_COUNT}個):</label>
+                        <div class="url-input-container">
+                            <input type="url" class="url-input" placeholder="https://example.com" 
+                                   onkeypress="if(event.key==='Enter') addUrlToCard(${card.id}, this.value);">
+                            <button type="button" class="add-url-btn" onclick="addUrlToCard(${card.id}, this.previousElementSibling.value)">
+                                追加
+                            </button>
+                        </div>
+                        <div class="urls-list" id="urls-list-${card.id}">
+                            ${UIComponents.renderEditableUrls(card)}
+                        </div>
+                    </div>
+                    
+                    <div class="image-management">
+                        <label>画像 (最大${CONFIG.LIMITS.IMAGES_MAX_COUNT}個、各5MB以下):</label>
+                        <div class="image-input-container">
+                            <input type="file" class="image-input" accept="image/*" 
+                                   onchange="addImageToCard(${card.id}, this.files[0])">
+                        </div>
+                        <div class="images-list" id="images-list-${card.id}">
+                            ${UIComponents.renderEditableImages(card)}
+                        </div>
+                    </div>
                 </div>
                 <div class="card-actions">
                     <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
@@ -399,5 +435,141 @@ export class UIComponents {
         }).join('');
 
         return selectedCardsHtml;
+    }
+
+    /**
+     * カードのURLをレンダリング
+     * @param {Card} card - カード
+     * @returns {string} HTML文字列
+     */
+    static renderCardUrls(card) {
+        if (!card.urls || !Array.isArray(card.urls) || card.urls.length === 0) {
+            return '';
+        }
+
+        const urlsHtml = card.urls.map(url => {
+            const displayUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
+            return `
+                <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="card-url">
+                    🔗 ${escapeHtml(displayUrl)}
+                </a>
+            `;
+        }).join('');
+
+        return `
+            <div class="card-urls">
+                <h4>関連URL</h4>
+                <div class="urls-container">
+                    ${urlsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * カードの画像をレンダリング
+     * @param {Card} card - カード
+     * @returns {string} HTML文字列
+     */
+    static renderCardImages(card) {
+        if (!card.images || !Array.isArray(card.images) || card.images.length === 0) {
+            return '';
+        }
+
+        const imagesHtml = card.images.map(imageInfo => {
+            const imageData = card.getImageData(imageInfo.id);
+            if (!imageData) return '';
+
+            return `
+                <div class="card-image-container">
+                    <img src="${imageData}" alt="${escapeHtml(imageInfo.name)}" 
+                         class="card-image" onclick="openImageModal('${imageData}', '${escapeHtml(imageInfo.name)}')">
+                    <div class="image-info">
+                        <span class="image-name">${escapeHtml(imageInfo.name)}</span>
+                        <span class="image-size">${UIComponents.formatFileSize(imageInfo.size)}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="card-images">
+                <h4>画像</h4>
+                <div class="images-container">
+                    ${imagesHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * 編集可能なURLリストをレンダリング
+     * @param {Card} card - カード
+     * @returns {string} HTML文字列
+     */
+    static renderEditableUrls(card) {
+        if (!card.urls || !Array.isArray(card.urls) || card.urls.length === 0) {
+            return '<div class="no-urls">URLが登録されていません</div>';
+        }
+
+        return card.urls.map(url => {
+            const displayUrl = url.length > 60 ? url.substring(0, 57) + '...' : url;
+            return `
+                <div class="editable-url-item">
+                    <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="url-link">
+                        🔗 ${escapeHtml(displayUrl)}
+                    </a>
+                    <button type="button" class="remove-url-btn" 
+                            onclick="removeUrlFromCard(${card.id}, '${escapeHtml(url)}')">
+                        削除
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /**
+     * 編集可能な画像リストをレンダリング
+     * @param {Card} card - カード
+     * @returns {string} HTML文字列
+     */
+    static renderEditableImages(card) {
+        if (!card.images || !Array.isArray(card.images) || card.images.length === 0) {
+            return '<div class="no-images">画像が登録されていません</div>';
+        }
+
+        return card.images.map(imageInfo => {
+            const imageData = card.getImageData(imageInfo.id);
+            if (!imageData) return '';
+
+            return `
+                <div class="editable-image-item">
+                    <img src="${imageData}" alt="${escapeHtml(imageInfo.name)}" class="edit-image-thumbnail">
+                    <div class="image-details">
+                        <div class="image-name">${escapeHtml(imageInfo.name)}</div>
+                        <div class="image-size">${UIComponents.formatFileSize(imageInfo.size)}</div>
+                    </div>
+                    <button type="button" class="remove-image-btn" 
+                            onclick="removeImageFromCard(${card.id}, '${imageInfo.id}')">
+                        削除
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /**
+     * ファイルサイズをフォーマット
+     * @param {number} bytes - バイト数
+     * @returns {string} フォーマットされたサイズ
+     */
+    static formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 }

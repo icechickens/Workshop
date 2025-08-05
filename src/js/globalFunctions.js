@@ -388,4 +388,190 @@ window.addEventListener('click', (e) => {
     if (e.target === relatedCardsModal) {
         closeRelatedCardsModal();
     }
+
+    const imageModal = getElement('#imageModal');
+    if (e.target === imageModal) {
+        closeImageModal();
+    }
 });
+
+// URL管理関数
+window.addUrlToCard = function(cardId, url) {
+    if (!flashcardApp || !url || url.trim() === '') {
+        showNotification('有効なURLを入力してください', 'error');
+        return;
+    }
+
+    try {
+        flashcardApp.cardService.addUrlToCard(cardId, url.trim());
+        
+        // URLリストを更新
+        const urlsList = getElement(`#urls-list-${cardId}`);
+        if (urlsList) {
+            const card = flashcardApp.cardService.getCardById(cardId);
+            urlsList.innerHTML = UIComponents.renderEditableUrls(card);
+        }
+        
+        // 入力フィールドをクリア
+        const urlInput = getElement('.url-input');
+        if (urlInput) {
+            urlInput.value = '';
+        }
+        
+        showNotification('URLを追加しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+window.removeUrlFromCard = function(cardId, url) {
+    if (!flashcardApp) return;
+
+    try {
+        flashcardApp.cardService.removeUrlFromCard(cardId, url);
+        
+        // URLリストを更新
+        const urlsList = getElement(`#urls-list-${cardId}`);
+        if (urlsList) {
+            const card = flashcardApp.cardService.getCardById(cardId);
+            urlsList.innerHTML = UIComponents.renderEditableUrls(card);
+        }
+        
+        showNotification('URLを削除しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+// 画像管理関数
+window.addImageToCard = async function(cardId, file) {
+    if (!flashcardApp || !file) {
+        showNotification('画像ファイルを選択してください', 'error');
+        return;
+    }
+
+    try {
+        await flashcardApp.cardService.addImageToCard(cardId, file);
+        
+        // 画像リストを更新
+        const imagesList = getElement(`#images-list-${cardId}`);
+        if (imagesList) {
+            const card = flashcardApp.cardService.getCardById(cardId);
+            imagesList.innerHTML = UIComponents.renderEditableImages(card);
+        }
+        
+        // ファイル入力をクリア
+        const imageInput = getElement('.image-input');
+        if (imageInput) {
+            imageInput.value = '';
+        }
+        
+        showNotification('画像を追加しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+window.removeImageFromCard = function(cardId, imageId) {
+    if (!flashcardApp) return;
+
+    try {
+        flashcardApp.cardService.removeImageFromCard(cardId, imageId);
+        
+        // 画像リストを更新
+        const imagesList = getElement(`#images-list-${cardId}`);
+        if (imagesList) {
+            const card = flashcardApp.cardService.getCardById(cardId);
+            imagesList.innerHTML = UIComponents.renderEditableImages(card);
+        }
+        
+        showNotification('画像を削除しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+// 画像モーダル関数
+window.openImageModal = function(imageSrc, imageName) {
+    const modal = getElement('#imageModal');
+    const modalImage = getElement('#modalImage');
+    const modalImageName = getElement('#modalImageName');
+    
+    if (modal && modalImage) {
+        modalImage.src = imageSrc;
+        if (modalImageName) {
+            modalImageName.textContent = imageName || '画像';
+        }
+        modal.classList.add('show');
+    }
+};
+
+window.closeImageModal = function() {
+    const modal = getElement('#imageModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+};
+
+// 新規カード作成時のURL・画像管理関数
+window.addUrlToNewCard = function() {
+    const urlInput = getElement('#newCardUrlInput');
+    if (!flashcardApp || !urlInput) return;
+
+    const url = urlInput.value.trim();
+    if (!url) {
+        showNotification('URLを入力してください', 'error');
+        return;
+    }
+
+    try {
+        flashcardApp.addUrlToNewCard(url);
+        urlInput.value = '';
+        showNotification('URLを追加しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+window.removeUrlFromNewCard = function(url) {
+    if (!flashcardApp) return;
+
+    try {
+        flashcardApp.removeUrlFromNewCard(url);
+        showNotification('URLを削除しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+window.addImageToNewCard = async function(file) {
+    if (!flashcardApp || !file) {
+        showNotification('画像ファイルを選択してください', 'error');
+        return;
+    }
+
+    try {
+        await flashcardApp.addImageToNewCard(file);
+        
+        // ファイル入力をクリア
+        const imageInput = getElement('#newCardImageInput');
+        if (imageInput) {
+            imageInput.value = '';
+        }
+        
+        showNotification('画像を追加しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
+
+window.removeImageFromNewCard = function(imageId) {
+    if (!flashcardApp) return;
+
+    try {
+        flashcardApp.removeImageFromNewCard(imageId);
+        showNotification('画像を削除しました', 'success');
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+};
