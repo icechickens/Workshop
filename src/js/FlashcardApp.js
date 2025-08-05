@@ -13,7 +13,7 @@ export class FlashcardApp {
         this.settingsService = new SettingsService();
         
         // UI状態
-        this.currentFilter = 'all';
+        this.currentFilter = 'active';
         this.editingId = null;
         this.searchQuery = '';
         this.selectedTags = [];
@@ -41,6 +41,16 @@ export class FlashcardApp {
                 this.expandedCards.add(card.id);
             }
         });
+        
+        // 初期フィルター状態を設定（「学習中」をデフォルトに）
+        getElements('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        const activeBtn = getElement('.filter-btn[onclick*="active"]');
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
         
         // URLハッシュに基づいて画面を切り替え
         this.handleHashChange();
@@ -285,6 +295,19 @@ export class FlashcardApp {
      * 登録画面の初期化
      */
     initRegisterScreen() {
+        // 登録画面では「学習中」フィルターをデフォルトに設定
+        this.currentFilter = 'active';
+        
+        // フィルターボタンのアクティブ状態を更新
+        getElements('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        const activeBtn = getElement('.filter-btn[onclick*="active"]');
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+        
         this.render();
         this.updateStats();
     }
@@ -293,6 +316,19 @@ export class FlashcardApp {
      * 検索画面の初期化
      */
     initSearchScreen() {
+        // 検索画面でも「学習中」フィルターをデフォルトに設定
+        this.currentFilter = 'active';
+        
+        // フィルターボタンのアクティブ状態を更新
+        getElements('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        const activeBtn = getElement('.filter-btn[onclick*="active"]');
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+        
         this.renderSearchResults();
         
         const searchCardCount = getElement('#searchCardCount');
