@@ -83,8 +83,8 @@ export class UIComponents {
                             <div class="card-answer no-answer ${isExpanded ? 'expanded' : ''}">解説がありません</div>
                         `}
                         ${tagsHtml}
-                        ${urlsHtml}
-                        ${imagesHtml}
+                        ${isExpanded ? urlsHtml : ''}
+                        ${isExpanded ? imagesHtml : ''}
                         ${relatedCardsHtml}
                         <div class="card-meta">${metaInfo}</div>
                     </div>
