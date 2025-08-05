@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デバッグテスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-card { 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            margin: 10px 0; 
+            cursor: pointer;
+            background: #f9f9f9;
+        }
+        .test-card:hover { background: #e9e9e9; }
+        .edit-mode { background: #ffffcc !important; }
+        .log { 
+            background: #f0f0f0; 
+            padding: 10px; 
+            margin: 10px 0; 
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>ダブルクリック編集テスト</h1>
+    
+    <div class="test-card" id="testCard1" data-id="1">
+        <div class="card-content">
+            <div class="card-question">テストカード1 - ダブルクリックで編集</div>
+            <div class="card-answer">これは解説です</div>
+        </div>
+    </div>
+    
+    <div class="test-card" id="testCard2" data-id="2">
+        <div class="card-content">
+            <div class="card-question">テストカード2 - ダブルクリックで編集</div>
+            <div class="card-answer">これも解説です</div>
+        </div>
+    </div>
+    
+    <div class="log" id="log">ログ出力エリア</div>
+    
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.textContent += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // シングルクリック用のタイマー
+        let clickTimer = null;
+        
+        // シングルクリックイベント
+        document.addEventListener('click', (e) => {
+            const cardContent = e.target.closest('.card-content');
+            if (cardContent) {
+                const cardItem = cardContent.closest('.test-card');
+                if (cardItem) {
+                    const cardId = cardItem.dataset.id;
+                    
+                    // ダブルクリックの可能性があるため、少し待つ
+                    clearTimeout(clickTimer);
+                    clickTimer = setTimeout(() => {
+                        addLog(`シングルクリック: カード${cardId}`);
+                    }, 250);
+                }
+            }
+        });
+        
+        // ダブルクリックイベント
+        document.addEventListener('dblclick', (e) => {
+            const cardContent = e.target.closest('.card-content');
+            if (cardContent) {
+                // シングルクリックのタイマーをクリア
+                clearTimeout(clickTimer);
+                
+                const cardItem = cardContent.closest('.test-card');
+                if (cardItem) {
+                    const cardId = cardItem.dataset.id;
+                    addLog(`ダブルクリック: カード${cardId} - 編集モードに切り替え`);
+                    
+                    // 編集モードの視覚的フィードバック
+                    cardItem.classList.add('edit-mode');
+                    setTimeout(() => {
+                        cardItem.classList.remove('edit-mode');
+                    }, 2000);
+                }
+            }
+        });
+        
+        addLog('テストページが読み込まれました');
+    </script>
+</body>
+</html>

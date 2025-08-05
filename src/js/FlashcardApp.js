@@ -121,38 +121,83 @@ export class FlashcardApp {
      * カードのイベントをバインド
      */
     bindCardEvents() {
-        let clickTimer = null;
+        console.log('Binding card events');
+        
         let clickCount = 0;
+        let clickTimer = null;
+        let lastClickedElement = null;
 
+        // 統一されたクリックイベント処理
         document.addEventListener('click', (e) => {
+            // カードコンテンツ内でのクリックかチェック
             const cardContent = e.target.closest('.card-content');
-            if (cardContent && !e.target.closest('.card-actions')) {
-                clickCount++;
+            if (!cardContent) {
+                return;
+            }
+            
+            // アクションボタンや編集フォーム内でのクリックは無視
+            if (e.target.closest('.card-actions') || e.target.closest('.edit-form')) {
+                return;
+            }
+            
+            const cardItem = cardContent.closest('.card-item');
+            if (!cardItem) {
+                return;
+            }
+            
+            // 編集モードの場合はクリックイベントを無視
+            if (cardItem.querySelector('.edit-form')) {
+                return;
+            }
 
-                if (clickCount === 1) {
-                    clickTimer = setTimeout(() => {
-                        if (clickCount === 1) {
-                            // フラッシュカードモードでのみ詳細表示
-                            const flashcardSettings = this.settingsService.getFlashcardSettings();
-                            if (flashcardSettings.enabled) {
-                                const cardItem = cardContent.closest('.card-item');
-                                if (cardItem) {
-                                    const cardId = parseInt(cardItem.dataset.id);
-                                    this.toggleFlashcard(cardId);
-                                }
-                            }
+            const cardId = parseInt(cardItem.dataset.id);
+            
+            // 同じ要素への連続クリックかチェック
+            if (lastClickedElement === cardItem) {
+                clickCount++;
+            } else {
+                clickCount = 1;
+                lastClickedElement = cardItem;
+            }
+
+            // 既存のタイマーをクリア
+            clearTimeout(clickTimer);
+
+            if (clickCount === 1) {
+                // シングルクリック処理（遅延実行）
+                clickTimer = setTimeout(() => {
+                    if (clickCount === 1) {
+                        console.log('Single click on card:', cardId);
+                        // フラッシュカードモードでのみ詳細表示
+                        const flashcardSettings = this.settingsService.getFlashcardSettings();
+                        if (flashcardSettings.enabled) {
+                            this.toggleFlashcard(cardId);
                         }
-                        clickCount = 0;
-                    }, 300);
-                } else if (clickCount === 2) {
-                    clearTimeout(clickTimer);
-                    const cardItem = cardContent.closest('.card-item');
-                    if (cardItem) {
-                        const cardId = parseInt(cardItem.dataset.id);
-                        this.editCard(cardId);
                     }
                     clickCount = 0;
+                    lastClickedElement = null;
+                }, 300);
+            } else if (clickCount === 2) {
+                // ダブルクリック処理（即座に実行）
+                console.log('Double click on card:', cardId);
+                
+                // 習得済みカードは編集不可
+                const card = this.cardService.getCardById(cardId);
+                if (!card) {
+                    console.log('Card not found:', cardId);
+                    return;
                 }
+                
+                if (card.completed) {
+                    console.log('Card is completed, cannot edit:', cardId);
+                    showNotification('習得済みのカードは編集できません', 'warning');
+                } else {
+                    console.log('Calling editCard for:', cardId);
+                    this.editCard(cardId);
+                }
+                
+                clickCount = 0;
+                lastClickedElement = null;
             }
         });
     }
@@ -509,19 +554,39 @@ export class FlashcardApp {
      * @param {number} id - カードID
      */
     editCard(id) {
+        console.log('editCard called with id:', id);
+        
         if (this.editingId !== null) {
             this.cancelEdit();
         }
 
+        const card = this.cardService.getCardById(id);
+        if (!card) {
+            console.error('Card not found:', id);
+            return;
+        }
+
+        if (card.completed) {
+            showNotification('習得済みのカードは編集できません', 'warning');
+            return;
+        }
+
         this.editingId = id;
+        console.log('Setting editingId to:', id);
+        
         this.render();
 
         // 編集用入力フィールドにフォーカス
-        const editQuestionInput = getElement('.edit-question-input');
-        if (editQuestionInput) {
-            editQuestionInput.focus();
-            editQuestionInput.select();
-        }
+        setTimeout(() => {
+            const editQuestionInput = getElement('.edit-question-input');
+            if (editQuestionInput) {
+                editQuestionInput.focus();
+                editQuestionInput.select();
+                console.log('Focus set to edit input');
+            } else {
+                console.error('Edit question input not found');
+            }
+        }, 100);
     }
 
     /**
@@ -1141,8 +1206,12 @@ export class FlashcardApp {
      * @param {number[]} relatedCardIds - 関連カードのIDの配列
      */
     setRelatedCards(cardId, relatedCardIds) {
+        console.log('setRelatedCards called:', { cardId, relatedCardIds });
+        
         this.cardService.setRelatedCards(cardId, relatedCardIds);
         this.render();
+        
         showNotification(`${relatedCardIds.length}枚のカードを双方向に関連付けました`, 'success');
+        console.log('Related cards set successfully');
     }
 }

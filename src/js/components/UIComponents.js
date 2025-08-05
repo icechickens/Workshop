@@ -111,13 +111,13 @@ export class UIComponents {
                 </div>
                 <div class="card-actions">
                     <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
-                            onclick="flashcardApp.toggleFavorite(${card.id})" 
+                            onclick="event.stopPropagation(); flashcardApp.toggleFavorite(${card.id})" 
                             title="${isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'}">
                         ★
                     </button>
-                    <button class="edit-btn" onclick="flashcardApp.editCard(${card.id})" 
+                    <button class="edit-btn" onclick="event.stopPropagation(); flashcardApp.editCard(${card.id})" 
                             ${card.completed ? 'disabled' : ''}>編集</button>
-                    <button class="delete-btn" onclick="flashcardApp.deleteCard(${card.id})">削除</button>
+                    <button class="delete-btn" onclick="event.stopPropagation(); flashcardApp.deleteCard(${card.id})">削除</button>
                 </div>
             </li>
         `;
@@ -138,7 +138,7 @@ export class UIComponents {
         return `
             <li class="card-item ${isFavorite ? 'favorite' : ''}" data-id="${card.id}">
                 <div class="card-checkbox ${card.completed ? 'checked' : ''}" 
-                     onclick="flashcardApp.toggleCard(${card.id})"></div>
+                     onclick="event.stopPropagation(); flashcardApp.toggleCard(${card.id})"></div>
                 <div class="edit-form">
                     <input type="text" class="edit-question-input" value="${escapeHtml(card.question)}" 
                            maxlength="50" placeholder="問題" 
@@ -149,18 +149,18 @@ export class UIComponents {
                            maxlength="100" placeholder="タグ（カンマ区切り）" 
                            onkeypress="if(event.key==='Enter') flashcardApp.saveCard(${card.id}); if(event.key==='Escape') flashcardApp.cancelEdit();">
                     
-                    <button type="button" class="manage-related-btn" onclick="openRelatedCardsModal(${card.id})">
+                    <button type="button" class="manage-related-btn" onclick="event.stopPropagation(); openRelatedCardsModal(${card.id})">
                         🔗 関連カードを管理 ${relatedCardsCount > 0 ? `(${relatedCardsCount})` : ''}
                     </button>
                 </div>
                 <div class="card-actions">
                     <button class="favorite-btn ${isFavorite ? 'active' : ''}" 
-                            onclick="flashcardApp.toggleFavorite(${card.id})" 
+                            onclick="event.stopPropagation(); flashcardApp.toggleFavorite(${card.id})" 
                             title="${isFavorite ? 'お気に入りから削除' : 'お気に入りに追加'}">
                         ★
                     </button>
-                    <button class="save-btn" onclick="flashcardApp.saveCard(${card.id})">保存</button>
-                    <button class="cancel-btn" onclick="flashcardApp.cancelEdit()">キャンセル</button>
+                    <button class="save-btn" onclick="event.stopPropagation(); flashcardApp.saveCard(${card.id})">保存</button>
+                    <button class="cancel-btn" onclick="event.stopPropagation(); flashcardApp.cancelEdit()">キャンセル</button>
                 </div>
             </li>
         `;

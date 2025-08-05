@@ -199,18 +199,25 @@ window.clearTagsFilter = function() {
 
 // 関連カード選択モーダル関連の関数
 window.openRelatedCardsModal = function(cardId) {
+    console.log('openRelatedCardsModal called with cardId:', cardId);
+    
     currentEditingCardId = cardId;
     const card = flashcardApp?.cardService.getCardById(cardId);
 
     if (card && card.relatedCards) {
         selectedRelatedCards = [...card.relatedCards];
+        console.log('Existing related cards:', selectedRelatedCards);
     } else {
         selectedRelatedCards = [];
+        console.log('No existing related cards');
     }
 
     const modal = getElement('#relatedCardsModal');
     if (modal) {
         modal.classList.add('show');
+        console.log('Modal shown');
+    } else {
+        console.error('Related cards modal not found');
     }
 
     // 関連カード検索フィールドをクリア
@@ -236,30 +243,57 @@ window.closeRelatedCardsModal = function() {
 };
 
 function renderRelatedCardsList(searchQuery = '') {
+    console.log('renderRelatedCardsList called with searchQuery:', searchQuery);
+    
     const container = getElement('#relatedCardsContainer');
-    if (!container || !flashcardApp) return;
+    if (!container) {
+        console.error('Related cards container not found');
+        return;
+    }
+    
+    if (!flashcardApp) {
+        console.error('FlashcardApp not available');
+        return;
+    }
 
     // 現在編集中のカードを除外した他のカードを取得
     let availableCards = flashcardApp.cardService.getAllCards()
         .filter(card => card.id !== currentEditingCardId);
+    
+    console.log('Available cards count:', availableCards.length);
 
     // 検索クエリがある場合はフィルタリング
     if (searchQuery) {
         availableCards = availableCards.filter(card => card.matchesSearch(searchQuery));
+        console.log('Filtered cards count:', availableCards.length);
     }
 
     container.innerHTML = UIComponents.renderRelatedCardsList(availableCards, selectedRelatedCards);
+    console.log('Related cards list rendered');
 }
 
 function renderSelectedRelatedCards() {
+    console.log('renderSelectedRelatedCards called');
+    
     const container = getElement('#selectedCardsList');
-    if (!container || !flashcardApp) return;
+    if (!container) {
+        console.error('Selected cards list container not found');
+        return;
+    }
+    
+    if (!flashcardApp) {
+        console.error('FlashcardApp not available');
+        return;
+    }
 
     const selectedCards = selectedRelatedCards.map(cardId => 
         flashcardApp.cardService.getCardById(cardId)
     ).filter(card => card !== null);
+    
+    console.log('Selected cards count:', selectedCards.length);
 
     container.innerHTML = UIComponents.renderSelectedRelatedCards(selectedCards);
+    console.log('Selected related cards rendered');
 }
 
 window.toggleRelatedCard = function(cardId) {
@@ -283,7 +317,14 @@ window.clearRelatedCards = function() {
 };
 
 window.applyRelatedCards = function() {
-    if (currentEditingCardId === null || !flashcardApp) return;
+    console.log('applyRelatedCards called');
+    console.log('currentEditingCardId:', currentEditingCardId);
+    console.log('selectedRelatedCards:', selectedRelatedCards);
+    
+    if (currentEditingCardId === null || !flashcardApp) {
+        console.error('No card being edited or flashcardApp not available');
+        return;
+    }
 
     flashcardApp.setRelatedCards(currentEditingCardId, selectedRelatedCards);
     closeRelatedCardsModal();

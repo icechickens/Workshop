@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>機能テスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .test-result { padding: 10px; margin: 10px 0; background: #f0f0f0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>暗記カードアプリ機能テスト</h1>
+    
+    <div class="test-section">
+        <h2>1. アプリケーション読み込みテスト</h2>
+        <button onclick="testAppLoad()">アプリ読み込み確認</button>
+        <div id="appLoadResult" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. カード作成テスト</h2>
+        <button onclick="testCardCreation()">テストカード作成</button>
+        <div id="cardCreationResult" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. ダブルクリック編集テスト</h2>
+        <button onclick="testDoubleClickEdit()">ダブルクリック編集テスト</button>
+        <div id="doubleClickResult" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 関連カード機能テスト</h2>
+        <button onclick="testRelatedCards()">関連カード機能テスト</button>
+        <div id="relatedCardsResult" class="test-result"></div>
+    </div>
+    
+    <script>
+        function log(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `test-result ${isError ? 'error' : 'success'}`;
+        }
+        
+        function testAppLoad() {
+            try {
+                // メインアプリケーションのiframeを作成
+                const iframe = document.createElement('iframe');
+                iframe.src = '/';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                iframe.onload = function() {
+                    setTimeout(() => {
+                        try {
+                            const app = iframe.contentWindow.flashcardApp;
+                            if (app) {
+                                log('appLoadResult', 'アプリケーションが正常に読み込まれました');
+                                window.testApp = app;
+                            } else {
+                                log('appLoadResult', 'アプリケーションインスタンスが見つかりません', true);
+                            }
+                        } catch (e) {
+                            log('appLoadResult', 'アプリケーション確認中にエラー: ' + e.message, true);
+                        }
+                    }, 2000);
+                };
+                
+                iframe.onerror = function() {
+                    log('appLoadResult', 'アプリケーションの読み込みに失敗しました', true);
+                };
+                
+            } catch (e) {
+                log('appLoadResult', 'テスト実行中にエラー: ' + e.message, true);
+            }
+        }
+        
+        function testCardCreation() {
+            if (!window.testApp) {
+                log('cardCreationResult', 'アプリケーションが読み込まれていません。先にアプリ読み込みテストを実行してください。', true);
+                return;
+            }
+            
+            try {
+                const initialCount = window.testApp.cardService.getAllCards().length;
+                
+                // テストカードを作成
+                const testCard = window.testApp.cardService.addCard({
+                    question: 'テスト問題',
+                    answer: 'テスト解答'
+                });
+                
+                const newCount = window.testApp.cardService.getAllCards().length;
+                
+                if (newCount > initialCount && testCard) {
+                    log('cardCreationResult', `カード作成成功: ID ${testCard.id}`);
+                } else {
+                    log('cardCreationResult', 'カード作成に失敗しました', true);
+                }
+            } catch (e) {
+                log('cardCreationResult', 'カード作成テスト中にエラー: ' + e.message, true);
+            }
+        }
+        
+        function testDoubleClickEdit() {
+            log('doubleClickResult', 'ダブルクリック編集テストは手動で実行してください。メインアプリでカードをダブルクリックして編集モードになるか確認してください。');
+        }
+        
+        function testRelatedCards() {
+            log('relatedCardsResult', '関連カード機能テストは手動で実行してください。カードを編集モードにして「関連カードを管理」ボタンが表示されるか確認してください。');
+        }
+    </script>
+</body>
+</html>
