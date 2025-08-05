@@ -1206,6 +1206,7 @@ header h1 {
     background: var(--bg-primary);
 }
 
+/* カードアイテムの基本スタイル */
 .card-item {
     display: flex;
     align-items: flex-start;
@@ -1219,6 +1220,7 @@ header h1 {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
+    border-left: none; /* デフォルトで左ボーダーなし */
 }
 
 .card-item::before {
@@ -1232,6 +1234,50 @@ header h1 {
     transform: scaleY(0);
     transition: transform 0.3s var(--transition-bounce);
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+/* お気に入りカードの場合は::beforeを無効化し、独自のスタイルを適用 */
+.card-item.favorite::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* お気に入りカードのスタイル - 最高優先度で黄色いラインを定義 */
+.card-item.favorite,
+.card-item.favorite.completed,
+li.card-item.favorite,
+li.card-item.favorite.completed {
+    border-left: 4px solid #ffc107 !important;
+    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.1) !important;
+}
+
+/* お気に入り時のhover効果も調整 */
+.card-item.favorite:hover,
+.card-item.favorite.completed:hover,
+li.card-item.favorite:hover,
+li.card-item.favorite.completed:hover {
+    border-left: 4px solid #ffca2c !important;
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.2) !important;
+}
+
+/* お気に入りカードのhover時は通常の::beforeアニメーションを無効化 */
+.card-item.favorite:hover::before,
+.card-item.favorite.completed:hover::before {
+    transform: scaleY(0) !important;
+    display: none !important;
+    content: none !important;
+}
+
+/* 非お気に入りカードのスタイルを明示的に定義 */
+.card-item:not(.favorite),
+li.card-item:not(.favorite) {
+    border-left: none !important;
+}
+
+/* 完了済みかつお気に入りでないカードのスタイル */
+.card-item.completed:not(.favorite),
+li.card-item.completed:not(.favorite) {
+    border-left: none !important;
 }
 
 .card-item::after {
@@ -1529,14 +1575,7 @@ header h1 {
     box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
 }
 
-.card-item.favorite {
-    border-left: 4px solid #ffc107;
-    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.1);
-}
 
-.card-item.favorite::before {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-}
 
 .edit-btn {
     background: var(--success-gradient);

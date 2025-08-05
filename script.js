@@ -442,24 +442,117 @@ class FlashcardApp {
     // お気に入り状態を切り替え
     toggleFavorite(id) {
         const card = this.cards.find(card => card.id === id);
-        if (card) {
-            card.favorite = !card.favorite;
-            this.saveCards();
-            
-            // 該当するカードのみを更新
-            const cardElement = document.querySelector(`[data-id="${id}"]`);
-            if (cardElement) {
-                cardElement.outerHTML = this.renderCard(card);
-            }
-            
-            // 検索画面でお気に入りフィルターが適用されている場合は検索結果を更新
-            if (this.currentScreen === 'search' && this.currentFilter === 'favorites') {
-                this.renderSearchResults();
-            }
+        if (!card) return;
+        
+        console.log('toggleFavorite called for card:', id, 'current favorite:', card.favorite);
+        console.log('Current screen:', this.currentScreen);
+        
+        // 状態を切り替える
+        card.favorite = !card.favorite;
+        this.saveCards();
+        
+        console.log('Card favorite status changed to:', card.favorite);
+        
+        // 検索画面の場合は、DOM操作ではなく再レンダリングを優先
+        if (this.currentScreen === 'search') {
+            console.log('Search screen detected, re-rendering search results');
+            this.renderSearchResults();
             
             const message = card.favorite ? 'お気に入りに追加しました' : 'お気に入りから削除しました';
             this.showNotification(message, 'success');
+            return;
         }
+        
+        // 登録画面の場合のDOM操作（既存の処理）
+        try {
+            const cardElement = document.querySelector(`[data-id="${id}"]`);
+            if (!cardElement) {
+                console.error('Card element not found for id:', id);
+                return;
+            }
+            
+            console.log('Card element found:', cardElement);
+            console.log('Current classes before update:', cardElement.className);
+            
+            // 全てのスタイルを一旦クリア
+            cardElement.removeAttribute('style');
+            cardElement.classList.remove('favorite');
+            
+            // 強制的にレイアウトを再計算
+            cardElement.offsetHeight;
+            
+            // お気に入り状態に応じてスタイルを設定
+            if (card.favorite) {
+                cardElement.classList.add('favorite');
+                
+                // 複数の方法でスタイルを強制適用
+                const styles = [
+                    'border-left: 4px solid #ffc107 !important',
+                    'box-shadow: 0 5px 15px rgba(255, 193, 7, 0.1) !important'
+                ];
+                cardElement.setAttribute('style', styles.join('; '));
+                
+                // さらに個別にプロパティを設定
+                cardElement.style.setProperty('border-left', '4px solid #ffc107', 'important');
+                cardElement.style.setProperty('box-shadow', '0 5px 15px rgba(255, 193, 7, 0.1)', 'important');
+                
+                console.log('Added favorite class and forced inline styles');
+            } else {
+                // お気に入りでない場合は明示的にスタイルをリセット
+                const resetStyles = [
+                    'border-left: none !important',
+                    'box-shadow: var(--shadow-sm) !important'
+                ];
+                cardElement.setAttribute('style', resetStyles.join('; '));
+                
+                cardElement.style.setProperty('border-left', 'none', 'important');
+                cardElement.style.setProperty('box-shadow', 'var(--shadow-sm)', 'important');
+                
+                console.log('Removed favorite class and reset styles');
+            }
+            
+            console.log('Current classes after update:', cardElement.className);
+            console.log('Current inline styles:', cardElement.style.cssText);
+            
+            // お気に入りボタンも更新
+            const favoriteBtn = cardElement.querySelector('.favorite-btn');
+            if (favoriteBtn) {
+                if (card.favorite) {
+                    favoriteBtn.classList.add('active');
+                    favoriteBtn.title = 'お気に入りから削除';
+                } else {
+                    favoriteBtn.classList.remove('active');
+                    favoriteBtn.title = 'お気に入りに追加';
+                }
+                console.log('Updated favorite button:', favoriteBtn.className);
+            }
+            
+            // 最終確認のため、さらに遅延してもう一度適用
+            setTimeout(() => {
+                if (card.favorite) {
+                    cardElement.style.setProperty('border-left', '4px solid #ffc107', 'important');
+                    cardElement.style.setProperty('box-shadow', '0 5px 15px rgba(255, 193, 7, 0.1)', 'important');
+                    // CSSクラスも再度確認
+                    if (!cardElement.classList.contains('favorite')) {
+                        cardElement.classList.add('favorite');
+                    }
+                } else {
+                    cardElement.style.setProperty('border-left', 'none', 'important');
+                    cardElement.style.setProperty('box-shadow', 'var(--shadow-sm)', 'important');
+                    // CSSクラスも再度確認
+                    cardElement.classList.remove('favorite');
+                }
+                console.log('Applied delayed styles, final state:', card.favorite);
+                console.log('Final element classes:', cardElement.className);
+                console.log('Final element styles:', cardElement.style.cssText);
+            }, 100);
+            
+        } catch (e) {
+            console.error('お気に入り状態の更新中にエラーが発生しました:', e);
+        }
+        
+        const message = card.favorite ? 'お気に入りに追加しました' : 'お気に入りから削除しました';
+        this.showNotification(message, 'success');
     }
     
     // カードを編集モードにする
