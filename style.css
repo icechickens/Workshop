@@ -674,6 +674,37 @@ header h1 {
     gap: 1rem;
 }
 
+/* 登録フォームの関連カード管理ボタン */
+.input-group .manage-related-btn {
+    width: 100%;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.input-group .manage-related-btn:hover {
+    background: var(--primary-gradient);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.input-group .manage-related-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
 #cardQuestion {
     padding: 1rem 1.5rem;
     border: 2px solid transparent;

@@ -1,0 +1,10 @@
+{
+  "name": "flashcard-app-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "暗記カードアプリのテストスイート",
+  "scripts": {
+    "test": "echo \"テストを実行するにはブラウザでhttp://localhost:8011/tests/にアクセスしてください\"",
+    "start": "python3 -m http.server 8011"
+  }
+}

@@ -30,6 +30,28 @@ Workshop/
 │   └── css/
 │       ├── base.css                 # 基本スタイル
 │       └── header.css               # ヘッダースタイル
+├── tests/                           # テスト関連ファイル
+│   ├── unit/                        # 単体テスト
+│   │   ├── models/                  # モデルクラスのテスト
+│   │   ├── services/                # サービスクラスのテスト
+│   │   ├── components/              # UIコンポーネントのテスト
+│   │   └── utils/                   # ユーティリティ関数のテスト
+│   ├── integration/                 # 結合テスト
+│   │   ├── card-operations/         # カード操作の結合テスト
+│   │   ├── search-filter/           # 検索・フィルタリングの結合テスト
+│   │   └── settings/                # 設定機能の結合テスト
+│   ├── e2e/                         # エンドツーエンドテスト
+│   │   ├── user-scenarios/          # ユーザーシナリオテスト
+│   │   └── browser-tests/           # ブラウザテスト
+│   ├── fixtures/                    # テストデータ
+│   │   ├── sample-cards.json        # サンプルカードデータ
+│   │   └── test-settings.json       # テスト用設定データ
+│   ├── utils/                       # テスト用ユーティリティ
+│   │   ├── test-helpers.js          # テストヘルパー関数
+│   │   ├── mock-data.js             # モックデータ生成
+│   │   └── debug-helpers.js         # デバッグヘルパー関数
+│   ├── index.html                   # テストランナーメインページ
+│   └── README.md                    # テストフォルダの説明
 ├── index.html                       # メインHTMLファイル
 ├── style.css                        # メインスタイルシート
 └── README.md                        # このファイル
@@ -238,6 +260,9 @@ python3 -m http.server 8011
 
 # ブラウザでアクセス
 http://localhost:8011
+
+# テストスイートにアクセス
+http://localhost:8011/tests/
 ```
 
 ### ファイル構成の詳細

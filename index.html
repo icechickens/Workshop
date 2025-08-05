@@ -44,6 +44,9 @@
                             <input type="text" id="cardTags" placeholder="タグを入力（カンマ区切り）..." maxlength="100">
                             <div class="tags-hint">例: 英語,文法,動詞</div>
                         </div>
+                        <button type="button" class="manage-related-btn" id="manageRelatedBtn" onclick="openRelatedCardsModalForNew()">
+                            🔗 関連カードを管理 <span id="relatedCardsCount">(0)</span>
+                        </button>
                     </div>
                     <button id="addBtn" onclick="addCard()">カード追加</button>
                 </div>

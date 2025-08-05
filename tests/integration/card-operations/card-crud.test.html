@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カード操作結合テスト</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .info { color: #2196f3; }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .test-controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 カード操作結合テスト</h1>
+            <p>カードのCRUD操作とサービス層の連携をテストします</p>
+        </div>
+        
+        <div class="test-controls">
+            <button onclick="runAllTests()">全テスト実行</button>
+            <button onclick="runCreateTests()">作成テスト</button>
+            <button onclick="runUpdateTests()">更新テスト</button>
+            <button onclick="runDeleteTests()">削除テスト</button>
+            <button onclick="clearResults()">結果クリア</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 テスト対象</h3>
+            <ul>
+                <li>カードの作成（CardService + Card Model）</li>
+                <li>カードの更新（バリデーション含む）</li>
+                <li>カードの削除（関連データの整合性）</li>
+                <li>ローカルストレージとの連携</li>
+                <li>エラーハンドリング</li>
+            </ul>
+        </div>
+        
+        <div class="test-results" id="testResults">
+テスト結果がここに表示されます...
+        </div>
+    </div>
+
+    <script type="module">
+        import { Card } from '../../../src/js/models/Card.js';
+        import { CardService } from '../../../src/js/services/CardService.js';
+        import { TestSuite, TestAssert, TestEnvironment } from '../../utils/test-helpers.js';
+        import { MockCardGenerator } from '../../utils/mock-data.js';
+
+        let cardService;
+        const results = document.getElementById('testResults');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            results.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        // テスト環境のセットアップ
+        function setupTest() {
+            TestEnvironment.setup();
+            cardService = new CardService();
+            log('テスト環境をセットアップしました', 'info');
+        }
+
+        // テスト環境のクリーンアップ
+        function teardownTest() {
+            TestEnvironment.teardown();
+            log('テスト環境をクリーンアップしました', 'info');
+        }
+
+        // カード作成テスト
+        async function runCreateTests() {
+            log('=== カード作成テスト開始 ===', 'info');
+            setupTest();
+
+            try {
+                // 正常なカード作成
+                const cardData = {
+                    question: 'テスト問題1',
+                    answer: 'テスト解答1',
+                    tags: ['テスト']
+                };
+
+                const card = cardService.addCard(cardData);
+                TestAssert.assertTrue(card instanceof Card, 'カードオブジェクトが作成されること');
+                TestAssert.assertEqual(card.question, cardData.question, '問題が正しく設定されること');
+                TestAssert.assertEqual(card.answer, cardData.answer, '解答が正しく設定されること');
+                
+                // ローカルストレージに保存されているか確認
+                const savedCards = cardService.getAllCards();
+                TestAssert.assertEqual(savedCards.length, 1, 'ローカルストレージに保存されること');
+                
+                log('✅ カード作成テスト: 成功', 'success');
+
+                // バリデーションエラーのテスト
+                try {
+                    cardService.addCard({ question: '', answer: 'テスト' });
+                    log('❌ バリデーションエラーテスト: 失敗（エラーが発生しなかった）', 'error');
+                } catch (error) {
+                    log('✅ バリデーションエラーテスト: 成功', 'success');
+                }
+
+            } catch (error) {
+                log(`❌ カード作成テスト: 失敗 - ${error.message}`, 'error');
+            }
+
+            teardownTest();
+            log('=== カード作成テスト終了 ===\n', 'info');
+        }
+
+        // カード更新テスト
+        async function runUpdateTests() {
+            log('=== カード更新テスト開始 ===', 'info');
+            setupTest();
+
+            try {
+                // テスト用カードを作成
+                const originalCard = cardService.addCard({
+                    question: '元の問題',
+                    answer: '元の解答',
+                    tags: ['元のタグ']
+                });
+
+                // カードを更新
+                const updatedData = {
+                    question: '更新された問題',
+                    answer: '更新された解答',
+                    tags: ['更新されたタグ']
+                };
+
+                const updatedCard = cardService.updateCard(originalCard.id, updatedData);
+                
+                TestAssert.assertEqual(updatedCard.question, updatedData.question, '問題が更新されること');
+                TestAssert.assertEqual(updatedCard.answer, updatedData.answer, '解答が更新されること');
+                TestAssert.assertArrayEqual(updatedCard.tags, updatedData.tags, 'タグが更新されること');
+                TestAssert.assertTrue(updatedCard.updatedAt !== originalCard.updatedAt, '更新日時が変更されること');
+
+                // ローカルストレージの更新確認
+                const savedCard = cardService.getCard(originalCard.id);
+                TestAssert.assertEqual(savedCard.question, updatedData.question, 'ローカルストレージが更新されること');
+
+                log('✅ カード更新テスト: 成功', 'success');
+
+                // 存在しないカードの更新テスト
+                try {
+                    cardService.updateCard(999, updatedData);
+                    log('❌ 存在しないカード更新テスト: 失敗（エラーが発生しなかった）', 'error');
+                } catch (error) {
+                    log('✅ 存在しないカード更新テスト: 成功', 'success');
+                }
+
+            } catch (error) {
+                log(`❌ カード更新テスト: 失敗 - ${error.message}`, 'error');
+            }
+
+            teardownTest();
+            log('=== カード更新テスト終了 ===\n', 'info');
+        }
+
+        // カード削除テスト
+        async function runDeleteTests() {
+            log('=== カード削除テスト開始 ===', 'info');
+            setupTest();
+
+            try {
+                // テスト用カードを複数作成
+                const card1 = cardService.addCard({ question: 'カード1', answer: '解答1' });
+                const card2 = cardService.addCard({ question: 'カード2', answer: '解答2' });
+                const card3 = cardService.addCard({ question: 'カード3', answer: '解答3' });
+
+                TestAssert.assertEqual(cardService.getAllCards().length, 3, '3つのカードが作成されること');
+
+                // カードを削除
+                const deletedCard = cardService.deleteCard(card2.id);
+                TestAssert.assertEqual(deletedCard.id, card2.id, '削除されたカードが返されること');
+                TestAssert.assertEqual(cardService.getAllCards().length, 2, 'カード数が減ること');
+
+                // 削除されたカードが取得できないことを確認
+                const retrievedCard = cardService.getCard(card2.id);
+                TestAssert.assertEqual(retrievedCard, null, '削除されたカードは取得できないこと');
+
+                log('✅ カード削除テスト: 成功', 'success');
+
+                // 存在しないカードの削除テスト
+                try {
+                    cardService.deleteCard(999);
+                    log('❌ 存在しないカード削除テスト: 失敗（エラーが発生しなかった）', 'error');
+                } catch (error) {
+                    log('✅ 存在しないカード削除テスト: 成功', 'success');
+                }
+
+                // 習得済みカードの一括削除テスト
+                card1.toggleCompletion(); // card1を習得済みにする
+                cardService.updateCard(card1.id, card1.toJSON());
+
+                const deletedCount = cardService.deleteCompletedCards();
+                TestAssert.assertEqual(deletedCount, 1, '習得済みカードが削除されること');
+                TestAssert.assertEqual(cardService.getAllCards().length, 1, '未習得カードのみ残ること');
+
+                log('✅ 習得済みカード一括削除テスト: 成功', 'success');
+
+            } catch (error) {
+                log(`❌ カード削除テスト: 失敗 - ${error.message}`, 'error');
+            }
+
+            teardownTest();
+            log('=== カード削除テスト終了 ===\n', 'info');
+        }
+
+        // 全テスト実行
+        async function runAllTests() {
+            log('🚀 全テスト実行開始\n', 'info');
+            await runCreateTests();
+            await runUpdateTests();
+            await runDeleteTests();
+            log('🎉 全テスト実行完了', 'success');
+        }
+
+        // 結果クリア
+        function clearResults() {
+            results.innerHTML = 'テスト結果がここに表示されます...\n';
+        }
+
+        // グローバル関数として公開
+        window.runAllTests = runAllTests;
+        window.runCreateTests = runCreateTests;
+        window.runUpdateTests = runUpdateTests;
+        window.runDeleteTests = runDeleteTests;
+        window.clearResults = clearResults;
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            log('カード操作結合テストページが読み込まれました', 'info');
+            log('テストを実行するには上のボタンをクリックしてください', 'info');
+        });
+    </script>
+</body>
+</html>

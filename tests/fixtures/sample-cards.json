@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "displayId": 1,
+    "question": "JavaScriptでES6モジュールをインポートする構文は？",
+    "answer": "import { 関数名 } from './ファイル名.js'",
+    "tags": ["JavaScript", "ES6", "モジュール"],
+    "completed": false,
+    "favorite": false,
+    "createdAt": "2024-08-01T10:00:00.000Z",
+    "updatedAt": "2024-08-01T10:00:00.000Z",
+    "completedAt": null,
+    "reviewCount": 0,
+    "nextReviewDate": null,
+    "lastCompletedAt": null,
+    "relatedCards": []
+  },
+  {
+    "id": 2,
+    "displayId": 2,
+    "question": "CSSでFlexboxを使用してアイテムを中央揃えにする方法は？",
+    "answer": "justify-content: center; align-items: center;",
+    "tags": ["CSS", "Flexbox", "レイアウト"],
+    "completed": true,
+    "favorite": true,
+    "createdAt": "2024-08-01T11:00:00.000Z",
+    "updatedAt": "2024-08-01T12:00:00.000Z",
+    "completedAt": "2024-08-01T12:00:00.000Z",
+    "reviewCount": 2,
+    "nextReviewDate": "2024-08-08T12:00:00.000Z",
+    "lastCompletedAt": "2024-08-01T12:00:00.000Z",
+    "relatedCards": [1]
+  },
+  {
+    "id": 3,
+    "displayId": 3,
+    "question": "HTMLの基本構造を記述してください",
+    "answer": "<!DOCTYPE html><html><head><title></title></head><body></body></html>",
+    "tags": ["HTML", "基本構造"],
+    "completed": false,
+    "favorite": false,
+    "createdAt": "2024-08-01T13:00:00.000Z",
+    "updatedAt": "2024-08-01T13:00:00.000Z",
+    "completedAt": null,
+    "reviewCount": 1,
+    "nextReviewDate": null,
+    "lastCompletedAt": null,
+    "relatedCards": []
+  }
+]

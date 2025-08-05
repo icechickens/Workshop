@@ -24,6 +24,9 @@ export class FlashcardApp {
         this.currentEditingCardId = null;
         this.selectedRelatedCards = [];
         
+        // 新規カード作成時の関連カード
+        this.newCardRelatedCards = [];
+        
         this.init();
     }
 
@@ -33,6 +36,7 @@ export class FlashcardApp {
     init() {
         this.bindEvents();
         this.applyTheme();
+        this.updateNewCardRelatedCardsCount(); // 新規カード作成時の関連カード数を初期化
         this.checkForgettingCurve();
         
         // デフォルトで全てのカードを展開状態にする
@@ -457,7 +461,8 @@ export class FlashcardApp {
         const cardData = {
             question,
             answer,
-            tags: tagsText ? this.processTags(tagsText) : []
+            tags: tagsText ? this.processTags(tagsText) : [],
+            relatedCards: [...this.newCardRelatedCards] // 新規カード作成時の関連カードを追加
         };
 
         const card = this.cardService.addCard(cardData);
@@ -476,11 +481,50 @@ export class FlashcardApp {
         answerInput.value = '';
         tagsInput.value = '';
         questionInput.style.borderColor = '#e0e0e0';
+        
+        // 新規カード作成時の関連カードもクリア
+        this.newCardRelatedCards = [];
+        this.updateNewCardRelatedCardsCount();
         answerInput.style.borderColor = '#e0e0e0';
         tagsInput.style.borderColor = '#e0e0e0';
         questionInput.focus();
 
         showNotification('カードを追加しました', 'success');
+    }
+
+    /**
+     * 新規カード作成時の関連カード数を更新
+     */
+    updateNewCardRelatedCardsCount() {
+        const countElement = getElement('#relatedCardsCount');
+        if (countElement) {
+            countElement.textContent = `(${this.newCardRelatedCards.length})`;
+        }
+    }
+
+    /**
+     * 新規カード作成時の関連カードを設定
+     * @param {number[]} relatedCardIds - 関連カードのID配列
+     */
+    setNewCardRelatedCards(relatedCardIds) {
+        this.newCardRelatedCards = [...relatedCardIds];
+        this.updateNewCardRelatedCardsCount();
+    }
+
+    /**
+     * 新規カード作成時の関連カードを取得
+     * @returns {number[]} 関連カードのID配列
+     */
+    getNewCardRelatedCards() {
+        return [...this.newCardRelatedCards];
+    }
+
+    /**
+     * 新規カード作成時の関連カードをクリア
+     */
+    clearNewCardRelatedCards() {
+        this.newCardRelatedCards = [];
+        this.updateNewCardRelatedCardsCount();
     }
 
     /**

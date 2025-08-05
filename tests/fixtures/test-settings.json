@@ -1,0 +1,24 @@
+{
+  "forgettingSettings": {
+    "enabled": true,
+    "reviewCount": 3,
+    "intervals": [1, 3, 7],
+    "notificationEnabled": true
+  },
+  "flashcardSettings": {
+    "flashcardMode": true,
+    "expandAll": false
+  },
+  "darkModeSettings": {
+    "enabled": false
+  },
+  "sortSettings": {
+    "sortBy": "createdAt",
+    "sortOrder": "desc"
+  },
+  "testEnvironment": {
+    "mockLocalStorage": true,
+    "debugMode": true,
+    "logLevel": "debug"
+  }
+}

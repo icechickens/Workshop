@@ -72,10 +72,11 @@ export class CardService {
      */
     updateCard(id, updates) {
         const card = this.getCardById(id);
-        if (card) {
-            card.update(updates);
-            this.saveCards();
+        if (!card) {
+            throw new Error(`ID ${id} のカードが見つかりません`);
         }
+        card.update(updates);
+        this.saveCards();
         return card;
     }
 
@@ -86,12 +87,43 @@ export class CardService {
      */
     deleteCard(id) {
         const index = this.cards.findIndex(card => card.id === id);
-        if (index !== -1) {
-            this.cards.splice(index, 1);
-            this.saveCards();
-            return true;
+        if (index === -1) {
+            throw new Error(`ID ${id} のカードが見つかりません`);
         }
-        return false;
+        const deletedCard = this.cards.splice(index, 1)[0];
+        this.saveCards();
+        return deletedCard;
+    }
+
+    /**
+     * IDでカードを取得（テスト用エイリアス）
+     * @param {number} id カードID
+     * @returns {Card|null} カード
+     */
+    getCard(id) {
+        return this.getCardById(id);
+    }
+
+    /**
+     * カードを検索
+     * @param {string} searchTerm 検索語
+     * @returns {Card[]} 検索結果のカード配列
+     */
+    searchCards(searchTerm) {
+        if (!searchTerm || searchTerm.trim() === '') {
+            return [];
+        }
+        
+        return this.cards.filter(card => card.matchesSearch(searchTerm));
+    }
+
+    /**
+     * 習得状態でカードを取得
+     * @param {boolean} completed 習得状態
+     * @returns {Card[]} 指定した習得状態のカード配列
+     */
+    getCardsByStatus(completed) {
+        return this.cards.filter(card => card.completed === completed);
     }
 
     /**

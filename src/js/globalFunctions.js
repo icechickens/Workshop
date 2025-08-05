@@ -233,13 +233,50 @@ window.openRelatedCardsModal = function(cardId) {
     renderSelectedRelatedCards();
 };
 
+// 新規カード作成時の関連カードモーダルを開く関数
+window.openRelatedCardsModalForNew = function() {
+    console.log('openRelatedCardsModalForNew called');
+    
+    currentEditingCardId = null; // 新規カード作成時はnull
+    selectedRelatedCards = flashcardApp?.getNewCardRelatedCards() || [];
+    console.log('New card related cards:', selectedRelatedCards);
+
+    const modal = getElement('#relatedCardsModal');
+    if (modal) {
+        modal.classList.add('show');
+        console.log('Modal shown for new card');
+    } else {
+        console.error('Related cards modal not found');
+    }
+
+    // 関連カード検索フィールドをクリア
+    const searchInput = getElement('#relatedCardsSearch');
+    if (searchInput) {
+        searchInput.value = '';
+        searchInput.addEventListener('input', () => {
+            renderRelatedCardsList(searchInput.value.trim());
+        });
+    }
+
+    renderRelatedCardsList();
+    renderSelectedRelatedCards();
+};
+
 window.closeRelatedCardsModal = function() {
     const modal = getElement('#relatedCardsModal');
     if (modal) {
         modal.classList.remove('show');
     }
+    
+    // 状態をクリア
     currentEditingCardId = null;
     selectedRelatedCards = [];
+    
+    // 検索フィールドもクリア
+    const searchInput = getElement('#relatedCardsSearch');
+    if (searchInput) {
+        searchInput.value = '';
+    }
 };
 
 function renderRelatedCardsList(searchQuery = '') {
@@ -321,12 +358,22 @@ window.applyRelatedCards = function() {
     console.log('currentEditingCardId:', currentEditingCardId);
     console.log('selectedRelatedCards:', selectedRelatedCards);
     
-    if (currentEditingCardId === null || !flashcardApp) {
-        console.error('No card being edited or flashcardApp not available');
+    if (!flashcardApp) {
+        console.error('flashcardApp not available');
         return;
     }
-
-    flashcardApp.setRelatedCards(currentEditingCardId, selectedRelatedCards);
+    
+    if (currentEditingCardId === null) {
+        // 新規カード作成時
+        console.log('Setting related cards for new card');
+        flashcardApp.setNewCardRelatedCards(selectedRelatedCards);
+        showNotification('関連カードを設定しました', 'success');
+    } else {
+        // 既存カード編集時
+        console.log('Setting related cards for existing card');
+        flashcardApp.setRelatedCards(currentEditingCardId, selectedRelatedCards);
+    }
+    
     closeRelatedCardsModal();
 };
 

@@ -3,6 +3,9 @@
  */
 export class Card {
     constructor(data = {}) {
+        // バリデーション
+        this.validateCardData(data);
+        
         this.id = data.id || Date.now();
         this.displayId = data.displayId || 0;
         this.question = data.question || '';
@@ -20,11 +23,42 @@ export class Card {
     }
 
     /**
+     * カードデータのバリデーション
+     * @param {Object} data - カードデータ
+     */
+    validateCardData(data) {
+        if (!data.question || data.question.trim() === '') {
+            throw new Error('問題は必須です');
+        }
+        
+        if (data.question.length > 50) {
+            throw new Error('問題は50文字以内で入力してください');
+        }
+        
+        if (data.answer && data.answer.length > 200) {
+            throw new Error('解答は200文字以内で入力してください');
+        }
+    }
+
+    /**
      * カードを更新
      * @param {Object} updates - 更新データ
      */
     update(updates) {
         Object.assign(this, updates);
+        this.updatedAt = new Date().toISOString();
+    }
+
+    /**
+     * カードの習得状態を切り替え
+     */
+    toggleCompletion() {
+        if (this.completed) {
+            this.markAsIncomplete();
+        } else {
+            this.markAsCompleted();
+            this.reviewCount++;
+        }
         this.updatedAt = new Date().toISOString();
     }
 
