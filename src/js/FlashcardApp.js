@@ -16,9 +16,10 @@ export class FlashcardApp {
         this.currentFilter = 'active';
         this.editingId = null;
         this.searchQuery = '';
+        this.homeSearchQuery = ''; // ホーム画面用検索クエリ
         this.selectedTags = [];
         this.expandedCards = new Set();
-        this.currentScreen = 'register';
+        this.currentScreen = 'home'; // デフォルトをホーム画面に変更
         
         // 関連カード選択用
         this.currentEditingCardId = null;
@@ -45,6 +46,12 @@ export class FlashcardApp {
         this.updateNewCardUrlsList(); // 新規カード作成時のURLリストを初期化
         this.updateNewCardImagesList(); // 新規カード作成時の画像リストを初期化
         this.checkForgettingCurve();
+        
+        // テスト用：サンプルカードがない場合は追加（開発時のみ）
+        if (this.cardService.getAllCards().length === 0) {
+            console.log('No cards found, adding sample cards for testing');
+            this.addSampleCards();
+        }
         
         // デフォルトで全てのカードを展開状態にする
         this.cardService.getAllCards().forEach(card => {
@@ -80,6 +87,35 @@ export class FlashcardApp {
         setInterval(() => {
             this.checkForgettingCurve();
         }, 60000);
+    }
+
+    /**
+     * テスト用のサンプルカードを追加
+     */
+    addSampleCards() {
+        const sampleCards = [
+            {
+                question: 'JavaScriptの変数宣言',
+                answer: 'let, const, varの3つの方法があります。letは再代入可能、constは再代入不可、varは古い書き方です。',
+                tags: ['JavaScript', 'プログラミング']
+            },
+            {
+                question: 'HTMLの基本構造',
+                answer: '<!DOCTYPE html>, <html>, <head>, <body>タグで構成されます。',
+                tags: ['HTML', 'Web開発']
+            },
+            {
+                question: 'CSSのボックスモデル',
+                answer: 'content, padding, border, marginの4つの領域から構成されます。',
+                tags: ['CSS', 'Web開発']
+            }
+        ];
+
+        sampleCards.forEach(cardData => {
+            this.cardService.addCard(cardData);
+        });
+        
+        console.log('Sample cards added:', sampleCards.length);
     }
 
     /**
@@ -238,6 +274,29 @@ export class FlashcardApp {
                 }
             });
         }
+
+        // ホーム画面用の検索イベント
+        const homeSearchInput = getElement('#homeSearchInput');
+        if (homeSearchInput) {
+            const debouncedHomeSearch = debounce((query) => {
+                if (query.length === 0) {
+                    this.clearHomeSearch();
+                } else {
+                    this.performHomeSearch(query);
+                }
+            }, CONFIG.UI.SEARCH_DEBOUNCE);
+
+            homeSearchInput.addEventListener('input', (e) => {
+                debouncedHomeSearch(e.target.value.trim());
+            });
+
+            homeSearchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    const query = e.target.value.trim();
+                    this.performHomeSearch(query);
+                }
+            });
+        }
     }
 
     /**
@@ -294,13 +353,13 @@ export class FlashcardApp {
      * URLハッシュに基づいて画面を切り替え
      */
     handleHashChange() {
-        const hash = window.location.hash.substring(1) || 'register';
-        const validScreens = ['register', 'search', 'settings'];
+        const hash = window.location.hash.substring(1) || 'home';
+        const validScreens = ['home', 'register', 'search', 'settings'];
 
         if (validScreens.includes(hash)) {
             this.switchScreen(hash);
         } else {
-            this.switchScreen('register');
+            this.switchScreen('home');
         }
     }
 
@@ -335,6 +394,9 @@ export class FlashcardApp {
 
         // 画面に応じた初期化処理
         switch (screenName) {
+            case 'home':
+                this.initHomeScreen();
+                break;
             case 'register':
                 this.initRegisterScreen();
                 break;
@@ -351,21 +413,42 @@ export class FlashcardApp {
      * 登録画面の初期化
      */
     initRegisterScreen() {
-        // 登録画面では「学習中」フィルターをデフォルトに設定
+        console.log('initRegisterScreen called');
+        // 登録画面では特別な初期化は不要
+        // カード一覧は表示しない
+    }
+
+    /**
+     * ホーム画面の初期化
+     */
+    initHomeScreen() {
+        console.log('initHomeScreen called');
+        // ホーム画面では常に「学習中」フィルターを適用
         this.currentFilter = 'active';
+        this.homeSearchQuery = '';
         
-        // フィルターボタンのアクティブ状態を更新
-        getElements('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = getElement('.filter-btn[onclick*="active"]');
-        if (activeBtn) {
-            activeBtn.classList.add('active');
+        // ホーム画面用の検索入力をクリア
+        const homeSearchInput = getElement('#homeSearchInput');
+        if (homeSearchInput) {
+            homeSearchInput.value = '';
         }
         
-        this.render();
-        this.updateStats();
+        // 検索結果表示をリセット
+        const homeSearchInfo = getElement('#homeSearchInfo');
+        if (homeSearchInfo) {
+            homeSearchInfo.style.display = 'none';
+        }
+        
+        const homeClearSearchBtn = getElement('#homeClearSearchBtn');
+        if (homeClearSearchBtn) {
+            homeClearSearchBtn.style.display = 'none';
+        }
+        
+        console.log('About to call renderHomeScreen');
+        this.renderHomeScreen();
+        console.log('About to call updateHomeStats');
+        this.updateHomeStats();
+        console.log('initHomeScreen completed');
     }
 
     /**
@@ -1324,6 +1407,68 @@ export class FlashcardApp {
     }
 
     /**
+     * ホーム画面で検索を実行
+     * @param {string} query - 検索クエリ
+     */
+    performHomeSearch(query = null) {
+        const homeSearchInput = getElement('#homeSearchInput');
+        const homeSearchInfo = getElement('#homeSearchInfo');
+        const homeClearSearchBtn = getElement('#homeClearSearchBtn');
+        const homeSearchResults = getElement('#homeSearchResults');
+
+        if (!homeSearchInput || !homeSearchInfo || !homeClearSearchBtn || !homeSearchResults) {
+            console.error('ホーム画面の検索関連要素が見つかりません');
+            return;
+        }
+
+        if (query === null) {
+            query = homeSearchInput.value.trim();
+        }
+
+        this.homeSearchQuery = query;
+
+        if (query === '') {
+            this.clearHomeSearch();
+            return;
+        }
+
+        // 学習中のカードのみを検索対象とする
+        const results = this.cardService.getFilteredCards({
+            status: 'active',
+            searchQuery: query,
+            selectedTags: this.selectedTags
+        });
+
+        homeSearchInfo.style.display = 'block';
+        homeClearSearchBtn.style.display = 'block';
+        homeSearchResults.textContent = `"${query}" で ${results.length}件見つかりました`;
+
+        this.renderHomeScreen();
+        this.updateHomeStats();
+
+        showNotification(`${results.length}件のカードが見つかりました`, 'info');
+    }
+
+    /**
+     * ホーム画面の検索をクリア
+     */
+    clearHomeSearch() {
+        const homeSearchInput = getElement('#homeSearchInput');
+        const homeSearchInfo = getElement('#homeSearchInfo');
+        const homeClearSearchBtn = getElement('#homeClearSearchBtn');
+
+        this.homeSearchQuery = '';
+        if (homeSearchInput) homeSearchInput.value = '';
+        if (homeSearchInfo) homeSearchInfo.style.display = 'none';
+        if (homeClearSearchBtn) homeClearSearchBtn.style.display = 'none';
+
+        this.renderHomeScreen();
+        this.updateHomeStats();
+
+        showNotification('検索をクリアしました', 'info');
+    }
+
+    /**
      * 忘却曲線をチェック
      */
     checkForgettingCurve() {
@@ -1489,5 +1634,119 @@ export class FlashcardApp {
         
         showNotification(`${relatedCardIds.length}枚のカードを双方向に関連付けました`, 'success');
         console.log('Related cards set successfully');
+    }
+
+    /**
+     * ホーム画面のカード一覧をレンダリング
+     */
+    renderHomeScreen() {
+        console.log('renderHomeScreen called');
+        const container = getElement('#homeCardsContainer');
+        if (!container) {
+            console.error('homeCardsContainer not found');
+            return;
+        }
+
+        // 学習中のカードのみを取得
+        let cards = this.cardService.getFilteredCards({
+            status: 'active',
+            searchQuery: this.homeSearchQuery,
+            selectedTags: this.selectedTags
+        });
+        
+        console.log('Found cards:', cards.length);
+        
+        // ソート適用
+        const sortSettings = this.settingsService.getSortSettings();
+        
+        if (typeof this.cardService.sortCards === 'function') {
+            cards = this.cardService.sortCards(cards, sortSettings.field, sortSettings.direction);
+        } else {
+            console.warn('sortCards method not available, using default order');
+            // フォールバック: 手動でソート
+            cards = [...cards].sort((a, b) => {
+                const field = sortSettings.field || 'createdAt';
+                const direction = sortSettings.direction || 'desc';
+                
+                let valueA = a[field];
+                let valueB = b[field];
+                
+                if (field === 'createdAt' || field === 'updatedAt') {
+                    valueA = new Date(valueA).getTime();
+                    valueB = new Date(valueB).getTime();
+                }
+                
+                if (direction === 'asc') {
+                    return valueA > valueB ? 1 : -1;
+                } else {
+                    return valueA < valueB ? 1 : -1;
+                }
+            });
+        }
+
+        if (cards.length === 0) {
+            const message = this.homeSearchQuery ? 
+                '検索条件に一致する学習中のカードがありません。' : 
+                '学習中のカードがありません。新しいカードを登録しましょう！';
+            container.innerHTML = `<div class="no-cards-message">${message}</div>`;
+            console.log('No cards found, showing message');
+            return;
+        }
+
+        try {
+            const renderedCards = cards.map(card => 
+                UIComponents.renderCard(card, {
+                    isExpanded: this.expandedCards.has(card.id),
+                    searchQuery: this.homeSearchQuery,
+                    flashcardMode: true
+                })
+            ).join('');
+            
+            container.innerHTML = renderedCards;
+            console.log('Cards rendered successfully:', cards.length);
+        } catch (error) {
+            console.error('Error rendering cards:', error);
+            container.innerHTML = '<div class="error-message">カードの表示中にエラーが発生しました。</div>';
+        }
+    }
+
+    /**
+     * ホーム画面の統計情報を更新
+     */
+    updateHomeStats() {
+        const homeCardCount = getElement('#homeCardCount');
+        if (!homeCardCount) return;
+
+        // 学習中のカードのみを取得
+        let cards = this.cardService.getFilteredCards({
+            status: 'active',
+            searchQuery: this.homeSearchQuery,
+            selectedTags: this.selectedTags
+        });
+        
+        if (this.homeSearchQuery) {
+            homeCardCount.textContent = `${cards.length}枚のカード（検索結果）`;
+        } else {
+            homeCardCount.textContent = `${cards.length}枚のカード`;
+        }
+
+        // 忘却曲線の状態も更新
+        this.updateHomeForgettingStatus();
+    }
+
+    /**
+     * ホーム画面の忘却曲線状態を更新
+     */
+    updateHomeForgettingStatus() {
+        const statusElement = getElement('#homeForgettingStatus');
+        if (!statusElement) return;
+
+        const reviewCards = this.cardService.getCardsNeedingReview();
+        if (reviewCards.length > 0) {
+            statusElement.innerHTML = `<span class="review-notification">📅 復習対象: ${reviewCards.length}枚</span>`;
+            statusElement.style.display = 'block';
+        } else {
+            statusElement.style.display = 'none';
+        }
     }
 }

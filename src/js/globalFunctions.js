@@ -48,6 +48,22 @@ window.clearSearch = function() {
     flashcardApp?.clearSearch();
 };
 
+window.performHomeSearch = function() {
+    flashcardApp?.performHomeSearch();
+};
+
+window.clearHomeSearch = function() {
+    flashcardApp?.clearHomeSearch();
+};
+
+window.expandAll = function() {
+    flashcardApp?.expandAllCards();
+};
+
+window.collapseAll = function() {
+    flashcardApp?.collapseAllCards();
+};
+
 window.updateIntervalInputs = function() {
     flashcardApp?.generateSettingsIntervalInputs();
 };

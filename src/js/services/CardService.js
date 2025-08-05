@@ -442,4 +442,15 @@ export class CardService {
         }
         return card.getImageData(imageId);
     }
+
+    /**
+     * カードをソートする
+     * @param {Card[]} cards - ソート対象のカード配列
+     * @param {string} field - ソートフィールド
+     * @param {string} direction - ソート方向（'asc' | 'desc'）
+     * @returns {Card[]} ソートされたカード配列
+     */
+    sortCards(cards, field, direction) {
+        return Card.sortCards(cards, field, direction);
+    }
 }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>暗記カードアプリ</title>
+    <link rel="icon" type="image/png" href="output/flashcard_icon.png">
     
     <!-- CSS読み込み -->
     <link rel="stylesheet" href="src/css/base.css">
@@ -19,7 +20,10 @@
             </div>
             <nav class="main-nav">
                 <ul class="nav-menu">
-                    <li class="nav-item active" data-screen="register">
+                    <li class="nav-item active" data-screen="home">
+                        <a href="#home">ホーム</a>
+                    </li>
+                    <li class="nav-item" data-screen="register">
                         <a href="#register">登録</a>
                     </li>
                     <li class="nav-item" data-screen="search">
@@ -34,6 +38,43 @@
         
         <!-- 画面コンテナ -->
         <div class="screen-container">
+            <!-- ホーム画面（学習中カード表示） -->
+            <div class="screen active" id="home-screen">
+                <div class="home-header">
+                    <h2>📚 学習中のカード</h2>
+                    <p class="home-description">習得していないカードを表示しています。問題をクリックして学習を進めましょう。</p>
+                </div>
+                
+                <!-- 簡易検索 -->
+                <div class="home-search-container">
+                    <div class="search-input-group">
+                        <input type="text" id="homeSearchInput" placeholder="学習中カードを検索..." maxlength="100">
+                        <button id="homeSearchBtn" onclick="performHomeSearch()">🔍</button>
+                        <button id="homeClearSearchBtn" onclick="clearHomeSearch()" style="display: none;">✕</button>
+                    </div>
+                    <div class="search-info" id="homeSearchInfo" style="display: none;">
+                        <span id="homeSearchResults">0件見つかりました</span>
+                    </div>
+                </div>
+                
+                <!-- 一括操作ボタン -->
+                <div class="bulk-actions">
+                    <button id="expandAllBtn" onclick="expandAll()">📖 すべて展開</button>
+                    <button id="collapseAllBtn" onclick="collapseAll()">📕 すべて閉じる</button>
+                </div>
+                
+                <!-- カード統計 -->
+                <div class="home-card-stats">
+                    <span id="homeCardCount">0枚のカード</span>
+                    <div class="forgetting-status" id="homeForgettingStatus"></div>
+                </div>
+                
+                <!-- カード一覧 -->
+                <div class="cards-container" id="homeCardsContainer">
+                    <!-- カードがここに動的に追加されます -->
+                </div>
+            </div>
+            
             <!-- 登録画面 -->
             <div class="screen" id="register-screen">
                 <div class="card-input">
@@ -72,29 +113,6 @@
                         </div>
                     </div>
                     <button id="addBtn" onclick="addCard()">カード追加</button>
-                </div>
-                
-                <div class="card-stats">
-                    <span id="cardCount">0枚のカード</span>
-                </div>
-                
-                <!-- 一括表示コントロール -->
-                <div class="bulk-control" id="bulkControl">
-                    <div class="bulk-buttons">
-                        <button id="expandAllBtn" onclick="expandAllCards()">📖 すべて展開</button>
-                        <button id="collapseAllBtn" onclick="collapseAllCards()">📕 すべて閉じる</button>
-                    </div>
-                    <div class="bulk-info">
-                        <span id="expandedCount">0枚展開中</span>
-                    </div>
-                </div>
-                
-                <ul id="cardList" class="card-list">
-                    <!-- カードアイテムがここに動的に追加されます -->
-                </ul>
-                
-                <div class="empty-state" id="emptyState">
-                    <p>カードがありません。新しいカードを追加してください。</p>
                 </div>
             </div>
             
@@ -275,6 +293,6 @@
     </div>
     
     <!-- JavaScript読み込み（ES6モジュール） -->
-    <script type="module" src="src/js/main.js"></script>
+    <script type="module" src="src/js/main.js?v=1.5"></script>
 </body>
 </html>
