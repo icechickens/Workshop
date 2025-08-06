@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お気に入り機能テスト</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>お気に入り機能テスト</h1>
+        
+        <!-- 通常のカード -->
+        <ul class="card-list">
+            <li class="card-item" data-id="1">
+                <div class="card-checkbox"></div>
+                <div class="card-content">
+                    <div class="card-question">
+                        <span class="card-id">1</span>
+                        通常のカード
+                    </div>
+                    <div class="card-answer">これは通常のカードです</div>
+                </div>
+                <div class="card-actions">
+                    <button class="favorite-btn" onclick="toggleFavoriteTest(this, 1)">★</button>
+                    <button class="edit-btn">編集</button>
+                    <button class="delete-btn">削除</button>
+                </div>
+            </li>
+            
+            <!-- お気に入りカード -->
+            <li class="card-item favorite" data-id="2">
+                <div class="card-checkbox"></div>
+                <div class="card-content">
+                    <div class="card-question">
+                        <span class="card-id">2</span>
+                        お気に入りカード
+                    </div>
+                    <div class="card-answer">これはお気に入りカードです</div>
+                </div>
+                <div class="card-actions">
+                    <button class="favorite-btn active" onclick="toggleFavoriteTest(this, 2)">★</button>
+                    <button class="edit-btn">編集</button>
+                    <button class="delete-btn">削除</button>
+                </div>
+            </li>
+            
+            <!-- 完了済み + お気に入りカード -->
+            <li class="card-item completed favorite" data-id="3">
+                <div class="card-checkbox checked"></div>
+                <div class="card-content">
+                    <div class="card-question">
+                        <span class="card-id">3</span>
+                        完了済み + お気に入りカード
+                    </div>
+                    <div class="card-answer">これは完了済みのお気に入りカードです</div>
+                </div>
+                <div class="card-actions">
+                    <button class="favorite-btn active" onclick="toggleFavoriteTest(this, 3)">★</button>
+                    <button class="edit-btn" disabled>編集</button>
+                    <button class="delete-btn">削除</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        function toggleFavoriteTest(button, id) {
+            const cardItem = button.closest('.card-item');
+            const isFavorite = cardItem.classList.contains('favorite');
+            
+            if (isFavorite) {
+                cardItem.classList.remove('favorite');
+                button.classList.remove('active');
+                console.log(`カード${id}: お気に入りから削除`);
+            } else {
+                cardItem.classList.add('favorite');
+                button.classList.add('active');
+                console.log(`カード${id}: お気に入りに追加`);
+            }
+            
+            // デバッグ情報を表示
+            console.log(`カード${id}のクラス:`, cardItem.className);
+            console.log(`ボタン${id}のクラス:`, button.className);
+        }
+    </script>
+</body>
+</html>

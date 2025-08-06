@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お気に入り機能完全テスト</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .debug-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>お気に入り機能完全テスト</h1>
+        
+        <div class="test-section">
+            <h2>テスト1: 基本的なお気に入り機能</h2>
+            <ul class="card-list">
+                <li class="card-item" data-id="test1" id="card-test1">
+                    <div class="card-checkbox"></div>
+                    <div class="card-content">
+                        <div class="card-question">
+                            <span class="card-id">1</span>
+                            テストカード1
+                        </div>
+                        <div class="card-answer">これはテストカード1です</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="favorite-btn" id="fav-btn-test1" onclick="testToggleFavorite('test1')">★</button>
+                        <button class="edit-btn">編集</button>
+                        <button class="delete-btn">削除</button>
+                    </div>
+                </li>
+            </ul>
+            <div id="test1-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>テスト2: 完了済みカードのお気に入り機能</h2>
+            <ul class="card-list">
+                <li class="card-item completed" data-id="test2" id="card-test2">
+                    <div class="card-checkbox checked"></div>
+                    <div class="card-content">
+                        <div class="card-question">
+                            <span class="card-id">2</span>
+                            完了済みテストカード2
+                        </div>
+                        <div class="card-answer">これは完了済みのテストカード2です</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="favorite-btn" id="fav-btn-test2" onclick="testToggleFavorite('test2')">★</button>
+                        <button class="edit-btn" disabled>編集</button>
+                        <button class="delete-btn">削除</button>
+                    </div>
+                </li>
+            </ul>
+            <div id="test2-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>テスト3: 既にお気に入りのカード</h2>
+            <ul class="card-list">
+                <li class="card-item favorite" data-id="test3" id="card-test3">
+                    <div class="card-checkbox"></div>
+                    <div class="card-content">
+                        <div class="card-question">
+                            <span class="card-id">3</span>
+                            既にお気に入りのテストカード3
+                        </div>
+                        <div class="card-answer">これは既にお気に入りのテストカード3です</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="favorite-btn active" id="fav-btn-test3" onclick="testToggleFavorite('test3')">★</button>
+                        <button class="edit-btn">編集</button>
+                        <button class="delete-btn">削除</button>
+                    </div>
+                </li>
+            </ul>
+            <div id="test3-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>自動テスト実行</h2>
+            <button onclick="runAllTests()" style="padding: 10px 20px; font-size: 16px;">全テストを実行</button>
+            <div id="auto-test-results"></div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {};
+
+        function testToggleFavorite(cardId) {
+            console.log(`=== テスト開始: ${cardId} ===`);
+            
+            const cardElement = document.getElementById(`card-${cardId}`);
+            const favoriteBtn = document.getElementById(`fav-btn-${cardId}`);
+            const resultsDiv = document.getElementById(`${cardId}-results`);
+            
+            // 現在の状態を記録
+            const beforeClasses = cardElement.className;
+            const beforeBtnClasses = favoriteBtn.className;
+            const wasFavorite = cardElement.classList.contains('favorite');
+            const btnWasActive = favoriteBtn.classList.contains('active');
+            
+            console.log('変更前の状態:', {
+                cardClasses: beforeClasses,
+                btnClasses: beforeBtnClasses,
+                wasFavorite,
+                btnWasActive
+            });
+            
+            // お気に入り状態を切り替え
+            if (wasFavorite) {
+                cardElement.classList.remove('favorite');
+                favoriteBtn.classList.remove('active');
+                favoriteBtn.title = 'お気に入りに追加';
+            } else {
+                cardElement.classList.add('favorite');
+                favoriteBtn.classList.add('active');
+                favoriteBtn.title = 'お気に入りから削除';
+            }
+            
+            // 変更後の状態を確認
+            const afterClasses = cardElement.className;
+            const afterBtnClasses = favoriteBtn.className;
+            const isFavorite = cardElement.classList.contains('favorite');
+            const btnIsActive = favoriteBtn.classList.contains('active');
+            
+            console.log('変更後の状態:', {
+                cardClasses: afterClasses,
+                btnClasses: afterBtnClasses,
+                isFavorite,
+                btnIsActive
+            });
+            
+            // CSSスタイルを確認
+            const computedStyle = window.getComputedStyle(cardElement);
+            const borderLeft = computedStyle.borderLeft;
+            const borderLeftColor = computedStyle.borderLeftColor;
+            const borderLeftWidth = computedStyle.borderLeftWidth;
+            
+            console.log('計算されたスタイル:', {
+                borderLeft,
+                borderLeftColor,
+                borderLeftWidth
+            });
+            
+            // テスト結果を表示
+            const testPassed = (isFavorite !== wasFavorite) && (btnIsActive !== btnWasActive);
+            const borderTest = isFavorite ? borderLeftWidth === '4px' : true;
+            
+            resultsDiv.innerHTML = `
+                <div class="debug-info">
+                    <strong>デバッグ情報:</strong><br>
+                    変更前: カード=${beforeClasses}, ボタン=${beforeBtnClasses}<br>
+                    変更後: カード=${afterClasses}, ボタン=${afterBtnClasses}<br>
+                    border-left: ${borderLeft}<br>
+                    border-left-color: ${borderLeftColor}<br>
+                    border-left-width: ${borderLeftWidth}
+                </div>
+                <div class="test-result ${testPassed && borderTest ? 'test-pass' : 'test-fail'}">
+                    <strong>テスト結果:</strong><br>
+                    状態切り替え: ${testPassed ? '✓ 成功' : '✗ 失敗'}<br>
+                    境界線表示: ${borderTest ? '✓ 成功' : '✗ 失敗'}<br>
+                    総合判定: ${testPassed && borderTest ? '✓ 合格' : '✗ 不合格'}
+                </div>
+            `;
+            
+            testResults[cardId] = testPassed && borderTest;
+            
+            console.log(`=== テスト終了: ${cardId} - ${testPassed && borderTest ? '合格' : '不合格'} ===`);
+        }
+
+        function runAllTests() {
+            console.log('=== 自動テスト実行開始 ===');
+            
+            const autoResultsDiv = document.getElementById('auto-test-results');
+            autoResultsDiv.innerHTML = '<p>テスト実行中...</p>';
+            
+            // 各テストを順番に実行
+            setTimeout(() => testToggleFavorite('test1'), 100);
+            setTimeout(() => testToggleFavorite('test2'), 200);
+            setTimeout(() => testToggleFavorite('test3'), 300);
+            
+            // 結果をまとめて表示
+            setTimeout(() => {
+                const allPassed = Object.values(testResults).every(result => result);
+                const passedCount = Object.values(testResults).filter(result => result).length;
+                const totalCount = Object.keys(testResults).length;
+                
+                autoResultsDiv.innerHTML = `
+                    <div class="test-result ${allPassed ? 'test-pass' : 'test-fail'}">
+                        <strong>自動テスト結果:</strong><br>
+                        合格: ${passedCount}/${totalCount}<br>
+                        総合判定: ${allPassed ? '✓ 全テスト合格' : '✗ 一部テスト失敗'}
+                    </div>
+                `;
+                
+                console.log('=== 自動テスト実行完了 ===');
+                console.log('テスト結果:', testResults);
+            }, 500);
+        }
+
+        // ページ読み込み時に初期状態を確認
+        window.addEventListener('load', () => {
+            console.log('=== 初期状態確認 ===');
+            
+            ['test1', 'test2', 'test3'].forEach(cardId => {
+                const cardElement = document.getElementById(`card-${cardId}`);
+                const favoriteBtn = document.getElementById(`fav-btn-${cardId}`);
+                const computedStyle = window.getComputedStyle(cardElement);
+                
+                console.log(`${cardId}の初期状態:`, {
+                    cardClasses: cardElement.className,
+                    btnClasses: favoriteBtn.className,
+                    borderLeft: computedStyle.borderLeft,
+                    borderLeftWidth: computedStyle.borderLeftWidth
+                });
+            });
+        });
+    </script>
+</body>
+</html>

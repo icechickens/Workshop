@@ -1282,6 +1282,8 @@ li.card-item.favorite,
 li.card-item.favorite.completed {
     border-left: 4px solid #ffc107 !important;
     box-shadow: 0 5px 15px rgba(255, 193, 7, 0.1) !important;
+    /* デバッグ用: 背景色を微妙に変更 */
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.02), rgba(255, 193, 7, 0.05)) !important;
 }
 
 /* お気に入り時のhover効果も調整 */
@@ -1622,9 +1624,12 @@ li.card-item.completed:not(.favorite) {
 }
 
 .favorite-btn.active {
-    background: var(--warning-color, #f59e0b);
-    color: white;
-    box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+    background: var(--warning-color, #f59e0b) !important;
+    color: white !important;
+    box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4) !important;
+    /* デバッグ用: より目立つスタイル */
+    border: 2px solid #ffc107 !important;
+    font-weight: bold !important;
 }
 
 

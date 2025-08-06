@@ -896,7 +896,31 @@ export class FlashcardApp {
      */
     toggleFavorite(id) {
         const card = this.cardService.toggleCardFavorite(id);
+        
         if (card) {
+            // カードの要素を直接更新（レンダリング前に即座に反映）
+            const cardElement = document.querySelector(`[data-id="${id}"]`);
+            if (cardElement) {
+                if (card.favorite) {
+                    cardElement.classList.add('favorite');
+                } else {
+                    cardElement.classList.remove('favorite');
+                }
+                
+                // ボタンの状態も更新
+                const favoriteBtn = cardElement.querySelector('.favorite-btn');
+                if (favoriteBtn) {
+                    if (card.favorite) {
+                        favoriteBtn.classList.add('active');
+                        favoriteBtn.title = 'お気に入りから削除';
+                    } else {
+                        favoriteBtn.classList.remove('active');
+                        favoriteBtn.title = 'お気に入りに追加';
+                    }
+                }
+            }
+            
+            // 全体を再レンダリング
             if (this.currentScreen === 'search') {
                 this.renderSearchResults();
             } else {
