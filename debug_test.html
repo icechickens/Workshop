@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デバッグテスト - 暗記カードアプリ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .card-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐛 カード完了状態デバッグテスト</h1>
+    
+    <div class="test-container">
+        <h2>テスト手順</h2>
+        <ol>
+            <li>テストカードを作成</li>
+            <li>カードの完了状態を切り替え</li>
+            <li>ホーム画面での表示状態を確認</li>
+            <li>フィルタリング機能をテスト</li>
+        </ol>
+        
+        <button onclick="runTests()">🧪 テスト実行</button>
+        <button onclick="clearStorage()">🗑️ ストレージクリア</button>
+        <button onclick="showCurrentData()">📊 現在のデータ表示</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>テスト結果</h2>
+        <div id="testResults"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>現在のカードデータ</h2>
+        <div id="currentData"></div>
+    </div>
+
+    <script type="module">
+        import { CardService } from './src/js/services/CardService.js';
+        import { SettingsService } from './src/js/services/SettingsService.js';
+        
+        let cardService;
+        let settingsService;
+        
+        // グローバル関数として定義
+        window.runTests = runTests;
+        window.clearStorage = clearStorage;
+        window.showCurrentData = showCurrentData;
+        
+        function init() {
+            try {
+                cardService = new CardService();
+                settingsService = new SettingsService();
+                log('✅ サービス初期化完了', 'success');
+                showCurrentData();
+            } catch (error) {
+                log(`❌ 初期化エラー: ${error.message}`, 'error');
+            }
+        }
+        
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            resultsDiv.appendChild(div);
+            console.log(message);
+        }
+        
+        function runTests() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '';
+            
+            log('🚀 テスト開始', 'info');
+            
+            try {
+                // テスト1: カード作成
+                log('📝 テスト1: カード作成', 'info');
+                const testCard = cardService.addCard({
+                    question: 'テスト問題',
+                    answer: 'テスト解答'
+                });
+                log(`✅ カード作成成功 - ID: ${testCard.id}, completed: ${testCard.completed}`, 'success');
+                
+                // テスト2: 初期状態確認
+                log('🔍 テスト2: 初期状態確認', 'info');
+                const activeCards = cardService.getFilteredCards({ status: 'active' });
+                const completedCards = cardService.getFilteredCards({ status: 'completed' });
+                log(`学習中カード: ${activeCards.length}枚, 習得済みカード: ${completedCards.length}枚`, 'info');
+                
+                // テスト3: 完了状態切り替え
+                log('🔄 テスト3: 完了状態切り替え', 'info');
+                const updatedCard = cardService.toggleCardCompletion(testCard.id);
+                log(`✅ 完了状態切り替え - completed: ${updatedCard.completed}`, 'success');
+                
+                // テスト4: 切り替え後の状態確認
+                log('🔍 テスト4: 切り替え後の状態確認', 'info');
+                const activeCardsAfter = cardService.getFilteredCards({ status: 'active' });
+                const completedCardsAfter = cardService.getFilteredCards({ status: 'completed' });
+                log(`学習中カード: ${activeCardsAfter.length}枚, 習得済みカード: ${completedCardsAfter.length}枚`, 'info');
+                
+                // テスト5: 再度切り替え
+                log('🔄 テスト5: 再度切り替え', 'info');
+                const revertedCard = cardService.toggleCardCompletion(testCard.id);
+                log(`✅ 再切り替え - completed: ${revertedCard.completed}`, 'success');
+                
+                // テスト6: 最終状態確認
+                log('🔍 テスト6: 最終状態確認', 'info');
+                const finalActiveCards = cardService.getFilteredCards({ status: 'active' });
+                const finalCompletedCards = cardService.getFilteredCards({ status: 'completed' });
+                log(`学習中カード: ${finalActiveCards.length}枚, 習得済みカード: ${finalCompletedCards.length}枚`, 'info');
+                
+                // テスト7: ストレージ確認
+                log('💾 テスト7: ストレージ確認', 'info');
+                const storageData = JSON.parse(localStorage.getItem('flashcards') || '[]');
+                const testCardInStorage = storageData.find(card => card.id === testCard.id);
+                if (testCardInStorage) {
+                    log(`✅ ストレージ内カード状態 - completed: ${testCardInStorage.completed}`, 'success');
+                } else {
+                    log('❌ ストレージにカードが見つかりません', 'error');
+                }
+                
+                log('🎉 テスト完了', 'success');
+                showCurrentData();
+                
+            } catch (error) {
+                log(`❌ テストエラー: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            log('🗑️ ローカルストレージをクリアしました', 'info');
+            // サービスを再初期化
+            cardService = new CardService();
+            settingsService = new SettingsService();
+            showCurrentData();
+        }
+        
+        function showCurrentData() {
+            const dataDiv = document.getElementById('currentData');
+            
+            try {
+                const allCards = cardService.getAllCards();
+                const activeCards = cardService.getFilteredCards({ status: 'active' });
+                const completedCards = cardService.getFilteredCards({ status: 'completed' });
+                
+                let html = `
+                    <div class="card-info">
+                        <strong>統計情報:</strong><br>
+                        全カード: ${allCards.length}枚<br>
+                        学習中: ${activeCards.length}枚<br>
+                        習得済み: ${completedCards.length}枚
+                    </div>
+                `;
+                
+                if (allCards.length > 0) {
+                    html += '<h3>全カード詳細:</h3>';
+                    allCards.forEach(card => {
+                        html += `
+                            <div class="card-info">
+                                <strong>ID:</strong> ${card.id} (表示ID: ${card.displayId})<br>
+                                <strong>問題:</strong> ${card.question}<br>
+                                <strong>完了状態:</strong> ${card.completed ? '✅ 習得済み' : '📚 学習中'}<br>
+                                <strong>作成日:</strong> ${new Date(card.createdAt).toLocaleString()}<br>
+                                ${card.completedAt ? `<strong>習得日:</strong> ${new Date(card.completedAt).toLocaleString()}<br>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+                
+                dataDiv.innerHTML = html;
+                
+            } catch (error) {
+                dataDiv.innerHTML = `<div class="test-result error">データ表示エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // 初期化
+        init();
+    </script>
+</body>
+</html>

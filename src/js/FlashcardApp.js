@@ -853,7 +853,11 @@ export class FlashcardApp {
             setTimeout(() => {
                 this.cardService.deleteCard(id);
                 
-                if (this.currentScreen === 'search') {
+                // 現在の画面に応じて適切なレンダリングを実行
+                if (this.currentScreen === 'home') {
+                    this.renderHomeScreen();
+                    this.updateHomeStats();
+                } else if (this.currentScreen === 'search') {
                     this.renderSearchResults();
                 } else {
                     this.render();
@@ -878,10 +882,16 @@ export class FlashcardApp {
                 this.cardService.scheduleCardReview(id, forgettingSettings);
             }
 
-            this.render();
-            if (this.currentScreen === 'search') {
+            // 現在の画面に応じて適切なレンダリングを実行
+            if (this.currentScreen === 'home') {
+                this.renderHomeScreen();
+                this.updateHomeStats();
+            } else if (this.currentScreen === 'search') {
                 this.renderSearchResults();
+            } else {
+                this.render();
             }
+            
             this.updateStats();
             this.updateForgettingStatus();
 
@@ -920,8 +930,11 @@ export class FlashcardApp {
                 }
             }
             
-            // 全体を再レンダリング
-            if (this.currentScreen === 'search') {
+            // 現在の画面に応じて適切なレンダリングを実行
+            if (this.currentScreen === 'home') {
+                this.renderHomeScreen();
+                this.updateHomeStats();
+            } else if (this.currentScreen === 'search') {
                 this.renderSearchResults();
             } else {
                 this.render();
