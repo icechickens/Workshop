@@ -6,26 +6,57 @@
 
 ```
 tests/
-├── unit/                    # 単体テスト
-│   ├── models/             # モデルクラスのテスト
-│   ├── services/           # サービスクラスのテスト
-│   ├── components/         # UIコンポーネントのテスト
-│   └── utils/              # ユーティリティ関数のテスト
-├── integration/            # 結合テスト
-│   ├── card-operations/    # カード操作の結合テスト
-│   ├── search-filter/      # 検索・フィルタリングの結合テスト
-│   └── settings/           # 設定機能の結合テスト
-├── e2e/                    # エンドツーエンドテスト
-│   ├── user-scenarios/     # ユーザーシナリオテスト
-│   └── browser-tests/      # ブラウザテスト
-├── fixtures/               # テストデータ
-│   ├── sample-cards.json   # サンプルカードデータ
-│   └── test-settings.json  # テスト用設定データ
-├── utils/                  # テスト用ユーティリティ
-│   ├── test-helpers.js     # テストヘルパー関数
-│   └── mock-data.js        # モックデータ生成
-└── README.md               # このファイル
+├── unit/                           # 単体テスト
+│   ├── models/                     # モデルクラスのテスト
+│   ├── services/                   # サービスクラスのテスト
+│   ├── components/                 # UIコンポーネントのテスト
+│   │   └── favorite-component-test.js  # お気に入り機能コンポーネントテスト
+│   └── utils/                      # ユーティリティ関数のテスト
+├── integration/                    # 結合テスト
+│   ├── card-operations/            # カード操作の結合テスト
+│   │   └── favorite-integration-test.js  # お気に入り機能結合テスト
+│   ├── search-filter/              # 検索・フィルタリングの結合テスト
+│   └── settings/                   # 設定機能の結合テスト
+├── e2e/                           # エンドツーエンドテスト
+│   ├── user-scenarios/             # ユーザーシナリオテスト
+│   └── browser-tests/              # ブラウザテスト
+├── fixtures/                       # テストデータ
+│   ├── sample-cards.json           # サンプルカードデータ
+│   └── test-settings.json          # テスト用設定データ
+├── utils/                          # テスト用ユーティリティ
+│   ├── test-helpers.js             # テストヘルパー関数
+│   └── mock-data.js                # モックデータ生成
+├── favorite-basic-test.html        # お気に入り機能基本テスト
+├── favorite-complete-test.html     # お気に入り機能完全テスト
+├── favorite-function-test.js       # お気に入り機能JSテスト
+├── index.html                      # テストランナーメインページ
+└── README.md                       # このファイル
 ```
+
+## ⭐ お気に入り機能テスト（新規追加）
+
+お気に入り機能の動作を包括的にテストするためのテストスイートです。
+
+### HTMLテスト
+- **favorite-basic-test.html**: 基本的なお気に入り機能のテスト
+- **favorite-complete-test.html**: 自動テスト機能付きの完全テスト
+
+### 単体テスト
+- **unit/components/favorite-component-test.js**: コンポーネントレベルのテスト
+- **unit/services/favorite-service-test.js**: サービスレベルのテスト
+
+### 結合テスト
+- **integration/card-operations/favorite-integration-test.js**: 他機能との連携テスト
+
+### コンソールテスト
+- **favorite-function-test.js**: ブラウザコンソールで実行するテスト
+
+### テスト内容
+1. **基本的なお気に入り切り替え**: ボタンクリックでの状態変更
+2. **視覚的フィードバック**: 黄色い左側ラインの表示
+3. **完了済みカードでの動作**: 完了状態でのお気に入り機能
+4. **編集モードでの動作**: 編集中のお気に入り機能
+5. **検索・フィルターとの連携**: 他機能との統合動作
 
 ## テストの種類
 
