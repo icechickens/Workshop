@@ -1604,8 +1604,15 @@ li.card-item.completed:not(.favorite) {
     background: var(--bg-tertiary);
     color: var(--text-muted);
     font-size: 1rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem;
     line-height: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .favorite-btn:hover {
@@ -2312,13 +2319,6 @@ li.card-item.completed:not(.favorite) {
         align-items: center;
     }
     
-    .favorite-btn {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        margin: 0;
-    }
-    
     /* 編集フォームのモバイル対応 */
     .edit-form {
         width: 100%;
@@ -2341,17 +2341,35 @@ li.card-item.completed:not(.favorite) {
         text-align: center;
     }
     .card-actions {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 8px;
         margin-left: 0;
         margin-top: 10px;
         width: 100%;
+        justify-content: flex-start;
+        align-items: center;
     }
     
-    .edit-btn, .delete-btn, .save-btn, .cancel-btn, .favorite-btn {
-        width: 100%;
-        padding: 10px;
+    .edit-btn, .delete-btn, .save-btn, .cancel-btn {
+        flex: 1;
+        min-width: 80px;
+        padding: 10px 8px;
         justify-content: center;
+        font-size: 0.8rem;
+    }
+    
+    .favorite-btn {
+        width: 44px !important;
+        height: 44px !important;
+        padding: 8px !important;
+        flex-shrink: 0;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.2rem !important;
+        margin-left: auto;
     }
     
     .card-item .edit-form {
